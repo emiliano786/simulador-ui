@@ -1,0 +1,12 @@
+.e-table__mainContainer__bgColor {
+  @apply bg-primary-4 dark:bg-socrates-main-dark;
+}
+.e-table__header__bgColor {
+  @apply bg-primary-4 dark:bg-socrates-main-dark;
+}
+.e-table__body__bgColor {
+  @apply bg-primary-4 dark:bg-socrates-main-dark;
+}
+.e-table__bgColor--noData {
+  @apply bg-neutral-white;
+}

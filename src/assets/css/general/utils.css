@@ -1,0 +1,12 @@
+.blink {
+  animation: blink 600ms infinite;
+}
+
+@keyframes blink {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

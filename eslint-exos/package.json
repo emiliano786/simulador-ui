@@ -1,0 +1,6 @@
+{
+  "name": "eslint-plugin-exos",
+  "version": "1.0.0",
+  "description": "Un plugin personalizado para ESLint",
+  "main": "eslint-plugin-exos.js"
+}

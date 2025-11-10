@@ -1,0 +1,34 @@
+.e-dropdown__customContent__container__bgColor {
+  @apply rounded-2xl dark:border bg-neutral-white/80 dark:bg-socrates-main-dark/90 backdrop-blur-sm border border-secondary;
+}
+
+.e-dropdown__level-1 {
+  @apply bg-secondary dark:bg-socrates-main-dark rounded-full text-neutral-white box-border hover:bg-primary-2 dark:hover:bg-socrates-main-dark/60 disabled:bg-semantic-disabled;
+}
+
+.e-dropdown__level-2 {
+  @apply bg-neutral-white rounded-full text-secondary box-border border enabled:border-secondary hover:bg-primary-3 dark:hover:bg-socrates-main-dark/60 disabled:text-semantic-disabled disabled:border-semantic-disabled;
+}
+
+.e-dropdown__level-3 {
+  @apply bg-neutral-white rounded-full text-secondary box-border hover:bg-primary-3 dark:hover:bg-socrates-main-dark/60 disabled:text-semantic-disabled;
+}
+
+.e-dropdown__options__textColor {
+  @apply text-neutral-black dark:text-neutral-white;
+}
+
+.e-dropdown__options__container {
+  @apply bg-neutral-white;
+  @apply dark:bg-socrates-card-dark;
+}
+
+.e-dropdown__optionsItem_bgColor {
+  @apply bg-neutral-white hover:bg-primary-2 hover:text-neutral-white;
+  @apply dark:bg-socrates-card-dark dark:hover:bg-socrates-main-dark/60 dark:hover:text-neutral-white;
+}
+
+.e-dropdown__customContent__container__bgColor {
+  @apply bg-neutral-white;
+  @apply dark:bg-socrates-card-dark;
+}

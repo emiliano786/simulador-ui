@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+/* // CSS Components */
+@import '@alexochihua/exos-library-components/dist/exos-library-components.css' layer(components);
+@import '@alexochihua/exos-library-components/dist/style.css' layer(components);
+@import '@alexochihua/exos-library-components/dist/icon-css/style.css' layer(components);
+
+@import './general/utils.css' layer(utilities);
+@import './general/breakpoints.css' layer(utilities);
+@import './general/login.css' layer(utilities);
+
+@import './components/EBtn.css' layer(components);
+@import './components/ECard.css' layer(components);
+@import './components/EInput.css' layer(components);
+@import './components/EDropdown.css' layer(components);
+@import './components/ESelect.css' layer(components);
+@import './components/EFilePicker.css' layer(components);
+@import './components/ETable.css' layer(components);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==== Colores de la libreria de componentes ==== */
+:root {
+  /* ==== Colores primarios (Gama Roja Moderna #e12628) ==== */
+  --color-primary: #8726E1; /* Rojo principal */
+  --color-primary-1: #6B19B8; /* Rojo más oscuro */
+  --color-primary-2: #952AFA; /* Rojo vibrante */
+  --color-primary-3: #DCB9FD; /* Rojo suave */
+  --color-primary-4: #F3E6FE; /* Rojo muy suave */
+
+  /* ==== Colores secundarios (Variaciones del #dc2626) ==== */
+  --color-secondary: #8D26DC; /* Secundario principal */
+  --color-secondary-1: #731DB4; /* Secundario más oscuro */
+  --color-secondary-2: #A22BFF; /* Secundario más claro */
+  --color-secondary-3: #E0B8FF; /* Secundario suave */
+  --color-secondary-4: #F4E6FF; /* Secundario muy suave */
+
+  /* ==== Colores semánticos ==== */
+  --color-semantic-disabled: #9ca3af;
+  --color-semantic-inactive: #6b7280;
+  --color-semantic-warning: #f59e0b;
+
+  /* ==== Colores neutrales ==== */
+  --color-neutral-white: #ffffff;
+  --color-neutral-grey: #6b7280;
+  --color-neutral-light-grey: #d1d5db;
+  --color-neutral-black: #111827;
+
+  /* ==== Colores del sistema ==== */
+  --color-field-light: #f9fafb;
+  --color-field-dark: #374151;
+  --color-unfocus-light: #e5e7eb;
+  --color-unfocus-dark: #4b5563;
+  --color-main-light: #f8fafc;
+  --color-main-dark: #1f2937;
+  --color-content-light: #ffffff;
+  --color-content-dark: #374151;
+
+  /* ==== Colores info (Gama Azul Moderna #0891b2) ==== */
+  --color-info: #0891b2; /* Azul principal */
+  --color-info-1: #0e7490; /* Azul más oscuro */
+  --color-info-2: #06b6d4; /* Azul vibrante */
+  --color-info-3: #a5f3fc; /* Azul suave */
+  --color-info-4: #f0fdfa; /* Azul muy suave */
+
+  /* ==== Colores de fondo y cards Socrates ==== */
+  --color-socrates-main-light: #fef2f2; /* Fondo principal claro basado en primary */
+  --color-socrates-main-dark: #1f2937; /* Fondo principal oscuro */
+  --color-socrates-card-light: #ffffff;
+  --color-socrates-card-dark: #374151;
+  --color-socrates-sidebar-dark: #1f2937; /* Sidebar oscuro */
+}
+
+/* ==== Definicion de Colores de la libreria de componentes en tailwind ==== */
+@theme {
+  --color-field-light: var(--color-field-light);
+  --color-field-dark: var(--color-field-dark);
+  --color-unfocus-light: var(--color-unfocus-light);
+  --color-unfocus-dark: var(--color-unfocus-dark);
+  --color-main-light: var(--color-main-light);
+  --color-main-dark: var(--color-main-dark);
+  --color-content-light: var(--color-content-light);
+  --color-primary: var(--color-primary);
+  --color-primary-1: var(--color-primary-1);
+  --color-primary-2: var(--color-primary-2);
+  --color-primary-3: var(--color-primary-3);
+  --color-primary-4: var(--color-primary-4);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-1: var(--color-secondary-1);
+  --color-secondary-2: var(--color-secondary-2);
+  --color-secondary-3: var(--color-secondary-3);
+  --color-secondary-4: var(--color-secondary-4);
+  --color-semantic-disabled: var(--color-semantic-disabled);
+  --color-semantic-inactive: var(--color-semantic-inactive);
+  --color-semantic-warning: var(--color-semantic-warning);
+  --color-neutral-white: var(--color-neutral-white);
+  --color-neutral-grey: var(--color-neutral-grey);
+  --color-neutral-light-grey: var(--color-neutral-light-grey);
+  --color-neutral-black: var(--color-neutral-black);
+  --color-field-light: var(--color-field-light);
+  --color-field-dark: var(--color-field-dark);
+  --color-unfocus-light: var(--color-unfocus-light);
+  --color-unfocus-dark: var(--color-unfocus-dark);
+  --color-main-light: var(--color-main-light);
+  --color-main-dark: var(--color-main-dark);
+  --color-content-light: var(--color-content-light);
+  --color-content-dark: var(--color-content-dark);
+  --color-danger: #dc2626; /* Rojo para errores */
+  --color-positive: #16a34a; /* Verde para éxito */
+  --color-info: var(--color-info);
+  --color-info-1: var(--color-info-1);
+  --color-info-2: var(--color-info-2);
+  --color-info-3: var(--color-info-3);
+  --color-info-4: var(--color-info-4);
+  --color-warning: #d97706; /* Naranja para advertencias */
+  /* ==== Colores de fondo y cards Socrates ==== */
+  --color-socrates-main-light: var(--color-socrates-main-light);
+  --color-socrates-main-dark: var(--color-socrates-main-dark);
+  --color-socrates-card-light: var(--color-socrates-card-light);
+  --color-socrates-card-dark: var(--color-socrates-card-dark);
+  --color-socrates-sidebar-dark: var(--color-socrates-sidebar-dark);
+}

@@ -1,0 +1,3 @@
+.padding--active {
+  @apply xs:max-lg:py-[0.400rem] lg:max-xxl:py-[0.575rem] xxl:py-[0.775rem];
+}

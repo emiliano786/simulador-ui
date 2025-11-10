@@ -1,0 +1,3 @@
+.e-btn__level-2 {
+  @apply dark:bg-neutral-black/80;
+}

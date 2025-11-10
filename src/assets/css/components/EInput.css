@@ -1,0 +1,38 @@
+/* background */
+
+.e-input__background {
+  @apply bg-field-light disabled:bg-field-light dark:bg-field-dark;
+}
+
+/* label */
+
+.e-input__label__background--active {
+  @apply bg-field-light dark:bg-field-dark;
+}
+.e-input__label__background--disabled {
+  @apply bg-field-light dark:bg-field-dark;
+}
+
+/* text */
+
+.e-input__text--default {
+  @apply text-neutral-black dark:text-neutral-white disabled:text-semantic-disabled;
+}
+.e-input__text--active {
+  @apply text-primary-2;
+}
+.e-input__text--inactive {
+  @apply text-semantic-disabled;
+}
+
+/* border */
+
+.e-input__border {
+  @apply border-[1.5px] disabled:border-semantic-disabled;
+}
+.e-input__border--inactive {
+  @apply border-neutral-light-grey;
+}
+.e-input__border--active {
+  @apply border-primary-2;
+}

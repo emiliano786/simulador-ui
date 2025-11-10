@@ -1,0 +1,50 @@
+/* background */
+
+.e-select__background {
+  @apply bg-field-light disabled:bg-field-light dark:bg-field-dark dark:disabled:bg-field-dark;
+}
+
+/* label */
+
+.e-select__label__background--active {
+  @apply bg-field-light dark:bg-field-dark;
+}
+.e-select__label__background--disabled {
+  @apply bg-field-light dark:bg-field-dark;
+}
+
+/* option item */
+
+.e-select__optionItem__bg--hover {
+  @apply hover:bg-primary-3 dark:hover:bg-primary-1;
+}
+
+/* option item selected */
+
+.e-select__optionItem--selected {
+  @apply bg-primary-3;
+}
+
+/* text */
+
+.e-select__text--default {
+  @apply text-neutral-black dark:text-neutral-white disabled:text-semantic-disabled;
+}
+.e-select__text--active {
+  @apply text-primary-2;
+}
+.e-select__text--inactive {
+  @apply text-semantic-disabled;
+}
+
+/* border */
+
+.e-select__border {
+  @apply border-[1.5px] disabled:border-semantic-disabled;
+}
+.e-select__border--inactive {
+  @apply border-neutral-light-grey;
+}
+.e-select__border--active {
+  @apply border-primary-2;
+}

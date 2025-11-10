@@ -1,0 +1,7 @@
+.e-card__label__background {
+  @apply bg-neutral-white dark:bg-socrates-main-dark;
+}
+
+.e-card__background {
+  @apply bg-neutral-white dark:bg-socrates-main-dark;
+}
