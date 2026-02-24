@@ -3,7 +3,7 @@
 ### Docker
 
 ```bash
- docker build -t simulador-frontend .
+ docker build -t simulador-frontend -f docker/Dockerfile .
 ```
 
 ### Kubernetes
