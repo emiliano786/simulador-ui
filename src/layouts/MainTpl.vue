@@ -1,34 +1,32 @@
 <template>
   <div
-    class="flex flex-col h-screen w-screen overflow-hidden bg-[#f7f8fa] dark:bg-socrates-main-dark gap-4"
+    class="flex h-screen w-screen overflow-hidden bg-[#f8fafc] dark:bg-[#000000] transition-colors duration-300"
   >
-    <!-- Header fijo en la parte superior -->
-    <EHeader class="flex-none" />
+    <ESidebar class="flex-none" />
 
-    <!-- Contenedor principal que ocupa el espacio restante -->
-    <div class="flex xs:flex-col lg:flex-row flex-1 min-h-0 gap-4">
-      <!-- Sidebar fijo -->
-      <ESidebar class="flex-none" />
-
-      <!-- Contenido principal con scroll -->
-      <main
-        class="flex-1 overflow-auto bg-white dark:bg-socrates-card-dark xs:mx-4 lg:mx-0s lg:mr-4 rounded-l-2xl rounded-2xl shadow-sm shadow-slate-600 dark:shadow-black"
-      >
-        <div class="p-4 min-h-full">
+    <div class="flex-1 flex flex-col min-w-0 ml-72 overflow-hidden">
+      <main class="flex-1 overflow-auto p-10 custom-scrollbar">
+        <div class="max-w-7xl mx-auto">
           <router-view />
         </div>
       </main>
     </div>
-
-    <!-- Footer fijo en la parte inferior -->
-    <EFooter class="flex-none" />
   </div>
 </template>
 
 <script setup>
-  import EFooter from '@/components/sections/EFooter.vue';
-  import EHeader from '@/components/sections/EHeader.vue';
-  import ESidebar from '@/components/sections/ESidebar.vue';
+import ESidebar from "@/components/sections/ESidebar.vue";
 </script>
 
-<style></style>
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e293b;
+}
+</style>
