@@ -94,6 +94,7 @@
                 placeholder="PAN"
                 :length="19"
                 class="exos-field"
+                autocomplete="off"
               />
               <e-input
                 v-model="form.monto"
@@ -101,6 +102,7 @@
                 placeholder="0.00"
                 type="number"
                 class="exos-field"
+                autocomplete="off"
               />
               <e-input
                 v-model="form.afiliacion"
@@ -108,6 +110,7 @@
                 placeholder="ID Comercio"
                 :length="15"
                 class="exos-field"
+                autocomplete="off"
               />
               <e-input
                 v-model="form.giro"
@@ -115,6 +118,7 @@
                 placeholder="0000"
                 :length="4"
                 class="exos-field"
+                autocomplete="off"
               />
               <e-input
                 v-model="form.fecha"
@@ -143,6 +147,7 @@
                 placeholder="484"
                 :length="3"
                 class="exos-field"
+                autocomplete="off"
               />
             </div>
 
@@ -152,8 +157,8 @@
                 @click="
                   isSyntheticMode ? handleSendSynthetic() : handleSendMessage()
                 "
-                :disabled="isLoading"
-                class="px-12 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 bg-[#8b5cf6] text-white hover:bg-[#7c3aed] shadow-lg shadow-purple-500/20 disabled:bg-gray-300 dark:disabled:bg-slate-800 disabled:text-gray-500"
+                :disabled="isLoading || !isFormValid"
+                class="px-12 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 bg-[#8b5cf6] text-white hover:bg-[#7c3aed] shadow-lg shadow-purple-500/20 disabled:bg-gray-300 dark:disabled:bg-slate-800 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 <span
                   v-if="isLoading"
@@ -198,17 +203,31 @@
               class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center overflow-hidden"
             >
               <span
-                class="bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4"
+                :class="
+                  errorMessage
+                    ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                    : 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                "
+                class="text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4 transition-colors"
               >
-                Respuesta del Host
+                {{ errorMessage ? "Error de Conexión" : "Respuesta del Host" }}
               </span>
               <p
-                class="text-2xl font-bold text-gray-900 dark:text-white tracking-tighter break-all w-full leading-none"
+                class="font-bold tracking-tighter break-all w-full leading-tight"
+                :class="
+                  errorMessage
+                    ? 'text-sm text-red-500'
+                    : 'text-2xl text-gray-900 dark:text-white'
+                "
               >
                 {{ responseFromServer?.host_response || "00" }}
               </p>
               <p class="mt-4 text-[10px] text-gray-400 uppercase font-bold">
-                Código de Respuesta (DE39)
+                {{
+                  errorMessage
+                    ? "Verifique si el servicio de Banco está activo"
+                    : "Código de Respuesta (DE39)"
+                }}
               </p>
             </div>
           </div>
@@ -219,7 +238,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
 import ContentTpl from "@/layouts/ContentTpl.vue";
@@ -242,11 +261,19 @@ const form = reactive({
   pais: "",
 });
 
+// --- VALIDACIÓN DE FORMULARIO ---
+const isFormValid = computed(() => {
+  if (isSyntheticMode.value) return batchSize.value > 0;
+  return Object.values(form).every(
+    (val) => val !== null && val.toString().trim() !== "",
+  );
+});
+
 const handleSendMessage = async () => {
   const payload = {
     is_synthetic: false,
     mti: "0200",
-    batch_size: 1, // Añadimos batch_size por defecto para el modelo Pydantic
+    batch_size: 1,
     fields: {
       2: form.tarjeta,
       4: Math.round(parseFloat(form.monto || 0) * 100)
@@ -285,19 +312,21 @@ const executePost = async (payload) => {
       payload,
     );
 
-    // Prioridad 1: Si el API responde con la lista 'results' (Modo Sintético)
+    // Prioridad de asignación para la UI
     if (data.results && data.results.length > 0) {
       responseFromServer.value = data.results[0];
-    }
-    // Prioridad 2: Si el API responde con los datos en la raíz (Modo Manual)
-    else if (data.generated_iso) {
+    } else {
       responseFromServer.value = {
         generated_iso: data.generated_iso,
         host_response: data.host_response,
       };
     }
+
+    // Detectar si el host_response es un mensaje de error enviado por el API
+    if (data.host_response && data.host_response.includes("ERROR")) {
+      errorMessage.value = data.host_response;
+    }
   } catch (err) {
-    // Capturamos el error detallado del backend (HTTPException 422)
     errorMessage.value =
       err.response?.data?.detail || "Error de comunicación con el servicio.";
   } finally {
@@ -323,10 +352,12 @@ const formatFechaHoraISO = (fecha, hora) => {
   margin-bottom: 6px;
   letter-spacing: 0.025em;
 }
+
 .dark .exos-field :deep(label) {
   color: #64748b;
 }
 
+/* Estilo Base Input */
 .exos-field :deep(input),
 .exos-field :deep(select) {
   width: 100%;
@@ -339,13 +370,15 @@ const formatFechaHoraISO = (fecha, hora) => {
   transition: all 0.2s;
 }
 
+/* Modo Oscuro Base */
 .dark .exos-field :deep(input),
 .dark .exos-field :deep(select) {
-  background-color: #000;
+  background-color: #000 !important;
   border-color: #1e293b;
   color: #f1f5f9;
 }
 
+/* Fix Focus Blanco en Modo Oscuro */
 .exos-field :deep(input:focus) {
   border-color: #8b5cf6;
   background-color: #fff;
@@ -353,9 +386,20 @@ const formatFechaHoraISO = (fecha, hora) => {
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
 }
 
-.dark .exos-field :deep(input:focus) {
-  background-color: #020617;
-  border-color: #a855f7;
+.dark .exos-field :deep(input:focus),
+.dark .exos-field :deep(select:focus) {
+  background-color: #020617 !important;
+  border-color: #a855f7 !important;
+  color: #ffffff !important;
+}
+
+/* Fix Autocompletado Chrome */
+.dark .exos-field :deep(input:-webkit-autofill),
+.dark .exos-field :deep(input:-webkit-autofill:hover),
+.dark .exos-field :deep(input:-webkit-autofill:focus) {
+  -webkit-text-fill-color: #f1f5f9;
+  -webkit-box-shadow: 0 0 0px 1000px #000 inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .animate-fade-in {
