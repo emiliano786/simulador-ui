@@ -18,6 +18,11 @@ const router = createRouter({
       meta: { requiresAuth: false },
       children: [
         {
+          path: '/dashboard',
+          name: 'Dashboard',
+          component: () => import('@/views/simulator/Dashboard.vue')
+        },
+        {
           path: "/simulator",
           name: "simulator-form",
           component: () => import("../views/simulator/Simulator.vue"),
