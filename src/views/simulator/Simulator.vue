@@ -2,7 +2,9 @@
   <content-tpl>
     <template #header-left>
       <div class="flex flex-col">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+        <h1
+          class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight"
+        >
           {{ t("Simulador") || "Monitoreo de Procesos" }}
         </h1>
         <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">
@@ -251,8 +253,12 @@
               </div>
             </div>
 
-            <div class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center">
-              <span class="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4">
+            <div
+              class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center"
+            >
+              <span
+                class="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4"
+              >
                 Estatus del Envío
               </span>
               <div v-if="responseFromServer?.sent" class="flex flex-col items-center">
@@ -260,24 +266,47 @@
                 <p class="text-sm font-bold text-gray-900 dark:text-white uppercase">Enviado</p>
               </div>
               <div v-else class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mb-2 text-xl">✕</div>
-                <p class="text-sm font-bold text-red-600 uppercase">Fallo en Conexión</p>
+                <div
+                  class="w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mb-2 text-xl"
+                >
+                  ✕
+                </div>
+                <p class="text-sm font-bold text-red-600 uppercase">
+                  Fallo en Conexión
+                </p>
               </div>
-              <p class="mt-2 text-[10px] text-gray-400 font-medium uppercase leading-tight">
-                {{ responseFromServer?.sent ? "Mensaje Entregado" : (errorMessage || "Sin respuesta del bridge") }}
+              <p
+                class="mt-2 text-[10px] text-gray-400 font-medium uppercase leading-tight"
+              >
+                {{
+                  responseFromServer?.sent
+                    ? "Mensaje Entregado"
+                    : errorMessage || "Sin respuesta del bridge"
+                }}
               </p>
             </div>
 
-            <div class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center overflow-hidden">
-              <span class="bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4">
+            <div
+              class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center overflow-hidden"
+            >
+              <span
+                class="bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest mb-4"
+              >
                 Respuesta del Host
               </span>
-              <p class="font-bold tracking-tighter break-all w-full leading-tight text-2xl text-gray-900 dark:text-white">
-                {{ responseFromServer?.sent ? (responseFromServer?.host_response || "00") : "N/A" }}
+              <p
+                class="font-bold tracking-tighter break-all w-full leading-tight text-2xl text-gray-900 dark:text-white"
+              >
+                {{
+                  responseFromServer?.sent
+                    ? responseFromServer?.host_response || "00"
+                    : "N/A"
+                }}
               </p>
-              <p class="mt-4 text-[10px] text-gray-400 uppercase font-bold">Respuesta</p>
+              <p class="mt-4 text-[10px] text-gray-400 uppercase font-bold">
+                Respuesta
+              </p>
             </div>
-
           </div>
         </div>
 
@@ -516,7 +545,12 @@ const handleSendRaw = async () => {
 };
 
 const handleSendSynthetic = async () => {
-  await executePost({ is_synthetic: true, batch_size: batchSize.value, mti: "0200", fields: {} });
+  await executePost({
+    is_synthetic: true,
+    batch_size: batchSize.value,
+    mti: "0200",
+    fields: {},
+  });
 };
 
 const executePost = async (payload) => {
