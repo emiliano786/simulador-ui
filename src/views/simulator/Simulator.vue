@@ -15,52 +15,91 @@
 
     <template #main-content>
       <div class="max-w-7xl mx-auto space-y-6">
-
-        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
-
-          <div class="p-6 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
-            <h2 class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+        <div
+          class="bg-white dark:bg-[#111827] rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300"
+        >
+          <div
+            class="p-6 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center"
+          >
+            <h2
+              class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider"
+            >
               Configuración de Envío
             </h2>
-            <div :class="modeBadgeClass" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors">
+            <div
+              :class="modeBadgeClass"
+              class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors"
+            >
               {{ modeBadgeLabel }}
             </div>
           </div>
 
           <div class="p-8">
-
             <!-- Toggles de modo -->
-            <div class="mb-8 flex flex-col gap-4 p-4 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-800">
-
+            <div
+              class="mb-8 flex flex-col gap-4 p-4 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-800"
+            >
               <!-- Modo Sintético -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
                   <div class="relative inline-block w-10 h-5">
-                    <input type="checkbox" v-model="isSyntheticMode" @change="onSyntheticToggle" id="syntheticToggle"
-                           class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#8b5cf6] shadow-sm" />
-                    <label for="syntheticToggle" class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#8b5cf6] cursor-pointer"></label>
+                    <input
+                      type="checkbox"
+                      v-model="isSyntheticMode"
+                      @change="onSyntheticToggle"
+                      id="syntheticToggle"
+                      class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#8b5cf6] shadow-sm"
+                    />
+                    <label
+                      for="syntheticToggle"
+                      class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#8b5cf6] cursor-pointer"
+                    ></label>
                   </div>
-                  <label for="syntheticToggle" class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <label
+                    for="syntheticToggle"
+                    class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer"
+                  >
                     Generación Sintética (XML/CSV)
                   </label>
                 </div>
                 <transition name="fade">
                   <div v-if="isSyntheticMode" class="flex items-center gap-3">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Cantidad:</span>
-                    <input type="number" v-model="batchSize" min="1" max="50"
-                           class="w-16 p-2 text-sm font-bold bg-white dark:bg-black border border-gray-200 dark:border-slate-700 rounded-lg text-[#8b5cf6] focus:ring-1 focus:ring-purple-500 outline-none" />
+                    <span
+                      class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+                      >Cantidad:</span
+                    >
+                    <input
+                      type="number"
+                      v-model="batchSize"
+                      min="1"
+                      max="50"
+                      class="w-16 p-2 text-sm font-bold bg-white dark:bg-black border border-gray-200 dark:border-slate-700 rounded-lg text-[#8b5cf6] focus:ring-1 focus:ring-purple-500 outline-none"
+                    />
                   </div>
                 </transition>
               </div>
 
               <!-- Modo Raw -->
-              <div class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center gap-4">
+              <div
+                class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center gap-4"
+              >
                 <div class="relative inline-block w-10 h-5">
-                  <input type="checkbox" v-model="isRawMode" @change="onRawToggle" id="rawToggle"
-                         class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#f97316] shadow-sm" />
-                  <label for="rawToggle" class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#f97316] cursor-pointer"></label>
+                  <input
+                    type="checkbox"
+                    v-model="isRawMode"
+                    @change="onRawToggle"
+                    id="rawToggle"
+                    class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#f97316] shadow-sm"
+                  />
+                  <label
+                    for="rawToggle"
+                    class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#f97316] cursor-pointer"
+                  ></label>
                 </div>
-                <label for="rawToggle" class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+                <label
+                  for="rawToggle"
+                  class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer"
+                >
                   Modo Raw — Enviar cadena ISO8583 sin validación
                 </label>
               </div>
@@ -75,53 +114,127 @@
                   />
 
                   <!-- Preview de la cadena pegada -->
-                  <div v-if="rawPreview" class="rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-black overflow-hidden">
-                    <div class="px-4 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-                      <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Preview</span>
-                      <span class="text-[10px] font-mono text-gray-400">{{ rawString.trim().length }} chars</span>
+                  <div
+                    v-if="rawPreview"
+                    class="rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-black overflow-hidden"
+                  >
+                    <div
+                      class="px-4 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between"
+                    >
+                      <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-gray-400"
+                        >Preview</span
+                      >
+                      <span class="text-[10px] font-mono text-gray-400"
+                        >{{ rawString.trim().length }} chars</span
+                      >
                     </div>
                     <div class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
                       <div>
-                        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">MTI</p>
-                        <p class="font-mono text-sm font-bold" :class="rawPreview.mti ? 'text-orange-500' : 'text-gray-300 dark:text-slate-700'">
-                          {{ rawPreview.mti || '—' }}
+                        <p
+                          class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                        >
+                          MTI
+                        </p>
+                        <p
+                          class="font-mono text-sm font-bold"
+                          :class="
+                            rawPreview.mti
+                              ? 'text-orange-500'
+                              : 'text-gray-300 dark:text-slate-700'
+                          "
+                        >
+                          {{ rawPreview.mti || "—" }}
                         </p>
                       </div>
                       <div>
-                        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Bitmap primario</p>
-                        <p class="font-mono text-[10px] break-all leading-relaxed" :class="rawPreview.bitmap1 ? 'text-gray-600 dark:text-gray-300' : 'text-gray-300 dark:text-slate-700'">
-                          {{ rawPreview.bitmap1 || '—' }}
+                        <p
+                          class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                        >
+                          Bitmap primario
+                        </p>
+                        <p
+                          class="font-mono text-[10px] break-all leading-relaxed"
+                          :class="
+                            rawPreview.bitmap1
+                              ? 'text-gray-600 dark:text-gray-300'
+                              : 'text-gray-300 dark:text-slate-700'
+                          "
+                        >
+                          {{ rawPreview.bitmap1 || "—" }}
                         </p>
                       </div>
                       <div>
-                        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Bitmap secundario</p>
-                        <p class="font-mono text-[10px] break-all leading-relaxed" :class="rawPreview.bitmap2 ? 'text-gray-600 dark:text-gray-300' : 'text-gray-300 dark:text-slate-700'">
-                          {{ rawPreview.bitmap2 || '—' }}
+                        <p
+                          class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                        >
+                          Bitmap secundario
+                        </p>
+                        <p
+                          class="font-mono text-[10px] break-all leading-relaxed"
+                          :class="
+                            rawPreview.bitmap2
+                              ? 'text-gray-600 dark:text-gray-300'
+                              : 'text-gray-300 dark:text-slate-700'
+                          "
+                        >
+                          {{ rawPreview.bitmap2 || "—" }}
                         </p>
                       </div>
                       <div>
-                        <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Campos activos</p>
-                        <p class="font-mono text-sm font-bold" :class="rawPreview.activeFields.length ? 'text-orange-500' : 'text-gray-300 dark:text-slate-700'">
-                          {{ rawPreview.activeFields.length ? rawPreview.activeFields.join(', ') : '—' }}
+                        <p
+                          class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                        >
+                          Campos activos
+                        </p>
+                        <p
+                          class="font-mono text-sm font-bold"
+                          :class="
+                            rawPreview.activeFields.length
+                              ? 'text-orange-500'
+                              : 'text-gray-300 dark:text-slate-700'
+                          "
+                        >
+                          {{
+                            rawPreview.activeFields.length
+                              ? rawPreview.activeFields.join(", ")
+                              : "—"
+                          }}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <p class="text-[10px] text-orange-400 dark:text-orange-500 font-medium">
-                    ⚠ La cadena se enviará tal cual, sin ninguna transformación.
+                  <p
+                    class="text-[10px] text-orange-400 dark:text-orange-500 font-medium"
+                  >
+                    ⚠ La cadena se enviará tal cual, sin ninguna
+                    transformación.
                   </p>
                 </div>
               </transition>
 
               <!-- Modo XML Builder -->
-              <div class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center gap-4">
+              <div
+                class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center gap-4"
+              >
                 <div class="relative inline-block w-10 h-5">
-                  <input type="checkbox" v-model="isXmlMode" @change="onXmlToggle" id="xmlToggle"
-                         class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#06b6d4] shadow-sm" />
-                  <label for="xmlToggle" class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#06b6d4] cursor-pointer"></label>
+                  <input
+                    type="checkbox"
+                    v-model="isXmlMode"
+                    @change="onXmlToggle"
+                    id="xmlToggle"
+                    class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#06b6d4] shadow-sm"
+                  />
+                  <label
+                    for="xmlToggle"
+                    class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#06b6d4] cursor-pointer"
+                  ></label>
                 </div>
-                <label for="xmlToggle" class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+                <label
+                  for="xmlToggle"
+                  class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer"
+                >
                   XML Builder — Construir mensaje desde definición del estándar
                 </label>
               </div>
@@ -130,68 +243,121 @@
             <!-- Modo XML Builder: lista dinámica de campos -->
             <transition name="fade">
               <div v-if="isXmlMode" class="mb-8">
-
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div
+                  class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
+                >
                   <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full bg-[#06b6d4] animate-pulse"></div>
-                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                      {{ xmlFields.length }} Data Elements · {{ activeXmlFields.length }} seleccionados
+                    <div
+                      class="w-2 h-2 rounded-full bg-[#06b6d4] animate-pulse"
+                    ></div>
+                    <span
+                      class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest"
+                    >
+                      {{ xmlFields.length }} Data Elements ·
+                      {{ activeXmlFields.length }} seleccionados
                     </span>
                   </div>
                   <div class="flex items-center gap-3">
-                    <label class="text-[10px] font-bold uppercase text-gray-400 tracking-widest">MTI</label>
-                    <input v-model="xmlMti" maxlength="4"
-                           class="w-24 px-3 py-2 text-sm font-mono font-bold bg-white dark:bg-black border border-gray-200 dark:border-slate-700 rounded-lg text-[#06b6d4] focus:ring-2 focus:ring-cyan-400 outline-none text-center"
-                           placeholder="1100" />
-                    <button @click="clearXmlFields"
-                            class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-red-400 border border-gray-200 dark:border-slate-700 rounded-lg hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
+                    <label
+                      class="text-[10px] font-bold uppercase text-gray-400 tracking-widest"
+                      >MTI</label
+                    >
+                    <input
+                      v-model="xmlMti"
+                      maxlength="4"
+                      class="w-24 px-3 py-2 text-sm font-mono font-bold bg-white dark:bg-black border border-gray-200 dark:border-slate-700 rounded-lg text-[#06b6d4] focus:ring-2 focus:ring-cyan-400 outline-none text-center"
+                      placeholder="1100"
+                    />
+                    <button
+                      @click="clearXmlFields"
+                      class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-red-400 border border-gray-200 dark:border-slate-700 rounded-lg hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                    >
                       Limpiar todo
                     </button>
                   </div>
                 </div>
 
-                <div v-if="xmlLoading" class="flex items-center justify-center py-16">
+                <div
+                  v-if="xmlLoading"
+                  class="flex items-center justify-center py-16"
+                >
                   <div class="flex flex-col items-center gap-3">
-                    <div class="animate-spin w-8 h-8 border-2 border-[#06b6d4] border-t-transparent rounded-full"></div>
-                    <span class="text-xs text-gray-400 font-medium">Cargando definición del estándar...</span>
+                    <div
+                      class="animate-spin w-8 h-8 border-2 border-[#06b6d4] border-t-transparent rounded-full"
+                    ></div>
+                    <span class="text-xs text-gray-400 font-medium"
+                      >Cargando definición del estándar...</span
+                    >
                   </div>
                 </div>
 
-                <div v-else-if="xmlError" class="p-6 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-center">
+                <div
+                  v-else-if="xmlError"
+                  class="p-6 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-center"
+                >
                   <p class="text-sm text-red-500 font-medium">{{ xmlError }}</p>
-                  <button @click="loadXmlFields" class="mt-3 text-xs text-red-400 underline">Reintentar</button>
+                  <button
+                    @click="loadXmlFields"
+                    class="mt-3 text-xs text-red-400 underline"
+                  >
+                    Reintentar
+                  </button>
                 </div>
 
                 <div v-else class="space-y-2">
-                  <div v-for="field in xmlFields" :key="field.id"
-                       :class="[
-                         'rounded-xl border transition-all duration-200',
-                         xmlForm[field.id]?.active
-                           ? 'border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/30 dark:bg-cyan-900/10'
-                           : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-[#0d1421]'
-                       ]">
+                  <div
+                    v-for="field in xmlFields"
+                    :key="field.id"
+                    :class="[
+                      'rounded-xl border transition-all duration-200',
+                      xmlForm[field.id]?.active
+                        ? 'border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/30 dark:bg-cyan-900/10'
+                        : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-[#0d1421]',
+                    ]"
+                  >
                     <div class="flex items-start gap-3 p-3">
-
-                      <button @click="toggleXmlField(field.id)"
-                              :class="[
-                                'mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
-                                xmlForm[field.id]?.active
-                                  ? 'bg-[#06b6d4] border-[#06b6d4] text-white'
-                                  : 'border-gray-300 dark:border-slate-600 hover:border-[#06b6d4]'
-                              ]">
-                        <svg v-if="xmlForm[field.id]?.active" viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
-                          <polyline points="1 5 4.5 8.5 11 1"/>
+                      <button
+                        @click="toggleXmlField(field.id)"
+                        :class="[
+                          'mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
+                          xmlForm[field.id]?.active
+                            ? 'bg-[#06b6d4] border-[#06b6d4] text-white'
+                            : 'border-gray-300 dark:border-slate-600 hover:border-[#06b6d4]',
+                        ]"
+                      >
+                        <svg
+                          v-if="xmlForm[field.id]?.active"
+                          viewBox="0 0 12 10"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="w-3 h-3"
+                        >
+                          <polyline points="1 5 4.5 8.5 11 1" />
                         </svg>
                       </button>
 
                       <div class="flex-1 min-w-0">
                         <div class="flex flex-wrap items-center gap-2 mb-0.5">
-                          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 font-mono w-7 shrink-0">F{{ field.id }}</span>
-                          <span class="text-xs font-semibold text-gray-700 dark:text-gray-200 flex-1 truncate">{{ field.name }}</span>
-                          <span :class="typeColor(field.type)" class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded font-mono flex-shrink-0">
+                          <span
+                            class="text-[10px] font-black text-gray-400 dark:text-gray-500 font-mono w-7 shrink-0"
+                            >F{{ field.id }}</span
+                          >
+                          <span
+                            class="text-xs font-semibold text-gray-700 dark:text-gray-200 flex-1 truncate"
+                            >{{ field.name }}</span
+                          >
+                          <span
+                            :class="typeColor(field.type)"
+                            class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                          >
                             {{ field.typeShort }}
                           </span>
-                          <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono flex-shrink-0">
+                          <span
+                            class="text-[9px] font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                          >
                             {{ field.lengthLabel }}
                           </span>
                         </div>
@@ -206,19 +372,29 @@
                                 'w-full font-mono text-xs px-3 py-2 rounded-lg border outline-none transition-all',
                                 'bg-white dark:bg-black text-gray-800 dark:text-gray-100',
                                 'placeholder-gray-300 dark:placeholder-gray-600',
-                                xmlForm[field.id].value && !isFieldValid(field, xmlForm[field.id].value)
+                                xmlForm[field.id].value &&
+                                !isFieldValid(field, xmlForm[field.id].value)
                                   ? 'border-red-300 dark:border-red-700 focus:ring-2 focus:ring-red-200'
-                                  : 'border-cyan-200 dark:border-cyan-900/40 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900'
+                                  : 'border-cyan-200 dark:border-cyan-900/40 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900',
                               ]"
                             />
                             <div class="flex items-center justify-between mt-1">
-                              <span class="text-[9px] text-gray-400 dark:text-gray-600">{{ field.hint }}</span>
-                              <span :class="[
-                                'text-[9px] font-mono font-bold',
-                                xmlForm[field.id].value && !isFieldValid(field, xmlForm[field.id].value)
-                                  ? 'text-red-400' : 'text-gray-300 dark:text-slate-700'
-                              ]">
-                                {{ xmlForm[field.id].value?.length || 0 }}/{{ field.length }}
+                              <span
+                                class="text-[9px] text-gray-400 dark:text-gray-600"
+                                >{{ field.hint }}</span
+                              >
+                              <span
+                                :class="[
+                                  'text-[9px] font-mono font-bold',
+                                  xmlForm[field.id].value &&
+                                  !isFieldValid(field, xmlForm[field.id].value)
+                                    ? 'text-red-400'
+                                    : 'text-gray-300 dark:text-slate-700',
+                                ]"
+                              >
+                                {{ xmlForm[field.id].value?.length || 0 }}/{{
+                                  field.length
+                                }}
                               </span>
                             </div>
                           </div>
@@ -231,9 +407,16 @@
             </transition>
 
             <div class="flex justify-end mt-8">
-              <button type="button" @click="handleDispatch" :disabled="isLoading || !isFormValid"
-                      class="px-12 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 bg-[#8b5cf6] text-white hover:bg-[#7c3aed] shadow-lg shadow-purple-500/20 disabled:bg-gray-300 dark:disabled:bg-slate-800 disabled:shadow-none">
-                <span v-if="isLoading" class="animate-spin border-2 border-white/30 border-t-white rounded-full w-4 h-4"></span>
+              <button
+                type="button"
+                @click="handleDispatch"
+                :disabled="isLoading || !isFormValid"
+                class="px-12 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-3 bg-[#8b5cf6] text-white hover:bg-[#7c3aed] shadow-lg shadow-purple-500/20 disabled:bg-gray-300 dark:disabled:bg-slate-800 disabled:shadow-none"
+              >
+                <span
+                  v-if="isLoading"
+                  class="animate-spin border-2 border-white/30 border-t-white rounded-full w-4 h-4"
+                ></span>
                 <span>{{ sendButtonLabel }}</span>
               </button>
             </div>
@@ -241,14 +424,22 @@
         </div>
 
         <!-- Panel de resultado -->
-        <div v-if="responseFromServer || errorMessage" class="animate-fade-in pb-10">
+        <div
+          v-if="responseFromServer || errorMessage"
+          class="animate-fade-in pb-10"
+        >
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            <div class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              <span class="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest inline-block mb-4">
+            <div
+              class="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm"
+            >
+              <span
+                class="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest inline-block mb-4"
+              >
                 Trama Generada
               </span>
-              <div class="bg-gray-50 dark:bg-black p-4 rounded-xl border border-gray-100 dark:border-slate-800 font-mono text-[10px] text-gray-500 dark:text-gray-400 break-all leading-relaxed max-h-32 overflow-y-auto">
+              <div
+                class="bg-gray-50 dark:bg-black p-4 rounded-xl border border-gray-100 dark:border-slate-800 font-mono text-[10px] text-gray-500 dark:text-gray-400 break-all leading-relaxed max-h-32 overflow-y-auto"
+              >
                 {{ responseFromServer?.generated_iso || "---" }}
               </div>
             </div>
@@ -261,9 +452,20 @@
               >
                 Estatus del Envío
               </span>
-              <div v-if="responseFromServer?.sent" class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-2 text-xl">✓</div>
-                <p class="text-sm font-bold text-gray-900 dark:text-white uppercase">Enviado</p>
+              <div
+                v-if="responseFromServer?.sent"
+                class="flex flex-col items-center"
+              >
+                <div
+                  class="w-12 h-12 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-2 text-xl"
+                >
+                  ✓
+                </div>
+                <p
+                  class="text-sm font-bold text-gray-900 dark:text-white uppercase"
+                >
+                  Enviado
+                </p>
               </div>
               <div v-else class="flex flex-col items-center">
                 <div
@@ -309,7 +511,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </template>
   </content-tpl>
@@ -325,18 +526,33 @@ const { t } = useI18n();
 
 // Modos mutuamente excluyentes
 const isSyntheticMode = ref(false);
-const isRawMode       = ref(false);
-const isXmlMode       = ref(false);
+const isRawMode = ref(false);
+const isXmlMode = ref(false);
 
-const onSyntheticToggle = () => { if (isSyntheticMode.value) { isRawMode.value = false; isXmlMode.value = false; } };
-const onRawToggle       = () => { if (isRawMode.value)       { isSyntheticMode.value = false; isXmlMode.value = false; } };
-const onXmlToggle       = () => { if (isXmlMode.value)       { isSyntheticMode.value = false; isRawMode.value = false; } };
+const onSyntheticToggle = () => {
+  if (isSyntheticMode.value) {
+    isRawMode.value = false;
+    isXmlMode.value = false;
+  }
+};
+const onRawToggle = () => {
+  if (isRawMode.value) {
+    isSyntheticMode.value = false;
+    isXmlMode.value = false;
+  }
+};
+const onXmlToggle = () => {
+  if (isXmlMode.value) {
+    isSyntheticMode.value = false;
+    isRawMode.value = false;
+  }
+};
 
-const batchSize          = ref(1);
-const rawString          = ref("");
-const isLoading          = ref(false);
+const batchSize = ref(1);
+const rawString = ref("");
+const isLoading = ref(false);
 const responseFromServer = ref(null);
-const errorMessage       = ref(null);
+const errorMessage = ref(null);
 
 // ── Modo Raw: preview ─────────────────────────────────────────────────────────
 // Intenta parsear MTI y bitmaps del string pegado para orientación visual.
@@ -350,7 +566,8 @@ const rawPreview = computed(() => {
 
   // Los siguientes 16 chars son el bitmap primario en hex (64 bits)
   const bitmapHex1 = s.slice(4, 20);
-  if (bitmapHex1.length < 16) return { mti, bitmap1: null, bitmap2: null, activeFields: [] };
+  if (bitmapHex1.length < 16)
+    return { mti, bitmap1: null, bitmap2: null, activeFields: [] };
 
   const activeFields = [];
   let bitmapBin1 = "";
@@ -388,34 +605,75 @@ const rawPreview = computed(() => {
 });
 
 function hexToBin(hex) {
-  return hex.split("").map(c => parseInt(c, 16).toString(2).padStart(4, "0")).join("");
+  return hex
+    .split("")
+    .map((c) => parseInt(c, 16).toString(2).padStart(4, "0"))
+    .join("");
 }
 
 // ── XML Builder ───────────────────────────────────────────────────────────────
 
 // Mapeo de clases jPOS a metadatos de UI
 const TYPE_META = {
-  IFA_NUMERIC:  { short: "NUM",     color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",             isVar: false, isNum: true,  isBin: false },
-  IFA_LLCHAR:   { short: "LLVAR",   color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400", isVar: true,  isNum: false, isBin: false },
-  IFA_LLLCHAR:  { short: "LLLVAR",  color: "bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",     isVar: true,  isNum: false, isBin: false },
-  IFA_LLLLCHAR: { short: "LLLLVAR", color: "bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400", isVar: true,  isNum: false, isBin: false },
-  IFA_BINARY:   { short: "BIN",     color: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",         isVar: false, isNum: false, isBin: true  },
+  IFA_NUMERIC: {
+    short: "NUM",
+    color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+    isVar: false,
+    isNum: true,
+    isBin: false,
+  },
+  IFA_LLCHAR: {
+    short: "LLVAR",
+    color:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+    isVar: true,
+    isNum: false,
+    isBin: false,
+  },
+  IFA_LLLCHAR: {
+    short: "LLLVAR",
+    color:
+      "bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
+    isVar: true,
+    isNum: false,
+    isBin: false,
+  },
+  IFA_LLLLCHAR: {
+    short: "LLLLVAR",
+    color:
+      "bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400",
+    isVar: true,
+    isNum: false,
+    isBin: false,
+  },
+  IFA_BINARY: {
+    short: "BIN",
+    color:
+      "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+    isVar: false,
+    isNum: false,
+    isBin: true,
+  },
 };
 
-const xmlFields  = ref([]);
-const xmlForm    = ref({});
-const xmlMti     = ref("1100");
+const xmlFields = ref([]);
+const xmlForm = ref({});
+const xmlMti = ref("1100");
 const xmlLoading = ref(false);
-const xmlError   = ref(null);
+const xmlError = ref(null);
 
-function parseTypeKey(cls) { return cls?.split(".").pop() ?? "UNKNOWN"; }
+function parseTypeKey(cls) {
+  return cls?.split(".").pop() ?? "UNKNOWN";
+}
 
 function buildHint({ type, length }) {
   const m = TYPE_META[type] ?? {};
   const parts = [];
   if (m.isNum) parts.push("Solo dígitos");
   if (m.isBin) parts.push("Formato hex");
-  parts.push(m.isVar ? `Hasta ${length} caracteres` : `Longitud fija: ${length}`);
+  parts.push(
+    m.isVar ? `Hasta ${length} caracteres` : `Longitud fija: ${length}`,
+  );
   return parts.join(" · ");
 }
 
@@ -426,38 +684,83 @@ function buildPlaceholder({ type, length }) {
   return `Hasta ${length} caracteres`;
 }
 
+function generateDefaultValue(field) {
+  const id = parseInt(field.id);
+  const now = new Date();
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  const fullYear = now.getFullYear().toString();
+  const yy = fullYear.slice(-2);
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const mins = pad(now.getMinutes());
+  const secs = pad(now.getSeconds());
+
+  if (id === 4) {
+    const maxDigits = field.length;
+    const randomNumber = Math.floor(
+      Math.random() * Math.pow(10, maxDigits),
+    ).toString();
+    return randomNumber.padStart(field.length, "0");
+  }
+
+  if (id === 7) return `${month}${day}${hours}${mins}${secs}`;
+  if (id === 12) return `${hours}${mins}${secs}`;
+  if (id === 13) return `${month}${day}`;
+  if (id === 14) return `${month}${day}`;
+  if (id === 15) return `${yy}${month}${day}`;
+
+  let asc = "";
+  for (let i = 1; i <= field.length; i++) asc += (i % 10).toString();
+  return asc.slice(0, field.length);
+}
+
 async function loadXmlFields() {
   xmlLoading.value = true;
   xmlError.value = null;
   try {
     const { data } = await axios.get("http://localhost:8080/xml-fields");
     xmlFields.value = data
-      .filter(f => f.id !== 0 && f.id !== 1)
+      .filter((f) => f.id !== 0 && f.id !== 1)
       .sort((a, b) => a.id - b.id)
-      .map(f => {
+      .map((f) => {
         const type = parseTypeKey(f.class);
-        const meta = TYPE_META[type] ?? { short: type, color: "bg-gray-100 text-gray-500", isVar: false, isNum: false, isBin: false };
+        const meta = TYPE_META[type] ?? {
+          short: type,
+          color: "bg-gray-100 text-gray-500",
+          isVar: false,
+          isNum: false,
+          isBin: false,
+        };
         return {
-          id:          f.id,
-          name:        f.name.trim(),
-          length:      f.length,
+          id: f.id,
+          name: f.name.trim(),
+          length: f.length,
           type,
-          typeShort:   meta.short,
-          maxInput:    meta.isBin ? f.length * 2 : f.length,
-          hint:        buildHint({ type, length: f.length }),
+          typeShort: meta.short,
+          maxInput: meta.isBin ? f.length * 2 : f.length,
+          hint: buildHint({ type, length: f.length }),
           placeholder: buildPlaceholder({ type, length: f.length }),
           lengthLabel: meta.isVar ? `max ${f.length}` : `len ${f.length}`,
-          isNum:       meta.isNum,
-          isVar:       meta.isVar,
-          isBin:       meta.isBin,
+          isNum: meta.isNum,
+          isVar: meta.isVar,
+          isBin: meta.isBin,
         };
       });
 
     const initial = {};
-    xmlFields.value.forEach(f => { initial[f.id] = { active: false, value: "" }; });
+    xmlFields.value.forEach((f) => {
+      initial[f.id] = {
+        active: true, // Todos seleccionados
+        value: generateDefaultValue(f), // Valor por defecto inteligente
+      };
+    });
     xmlForm.value = initial;
   } catch {
-    xmlError.value = "No se pudo cargar la definición del estándar. Verifica que el servidor esté corriendo en :8080.";
+    xmlError.value =
+      "No se pudo cargar la definición del estándar. Verifica que el servidor esté corriendo en :8080.";
   } finally {
     xmlLoading.value = false;
   }
@@ -470,55 +773,66 @@ function toggleXmlField(id) {
 }
 
 function clearXmlFields() {
-  Object.keys(xmlForm.value).forEach(k => { xmlForm.value[k].active = false; xmlForm.value[k].value = ""; });
+  Object.keys(xmlForm.value).forEach((k) => {
+    xmlForm.value[k].active = false;
+    xmlForm.value[k].value = "";
+  });
 }
 
 function isFieldValid(field, value) {
   if (!value) return true;
   if (field.isNum && !/^\d+$/.test(value)) return false;
   if (!field.isVar && value.length !== field.length) return false;
-  if (field.isVar  && value.length > field.length) return false;
+  if (field.isVar && value.length > field.length) return false;
   return true;
 }
 
-const activeXmlFields = computed(() => xmlFields.value.filter(f => xmlForm.value[f.id]?.active));
+const activeXmlFields = computed(() =>
+  xmlFields.value.filter((f) => xmlForm.value[f.id]?.active),
+);
 
 onMounted(() => loadXmlFields());
 
 // ── Computed de UI ────────────────────────────────────────────────────────────
 
 const modeBadgeClass = computed(() => {
-  if (isXmlMode.value)       return "bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
-  if (isRawMode.value)       return "bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
-  if (isSyntheticMode.value) return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
+  if (isXmlMode.value)
+    return "bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
+  if (isRawMode.value)
+    return "bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
+  if (isSyntheticMode.value)
+    return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
   return "bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400";
 });
 
 const modeBadgeLabel = computed(() => {
-  if (isXmlMode.value)       return "XML Builder";
-  if (isRawMode.value)       return "Modo Raw";
+  if (isXmlMode.value) return "XML Builder";
+  if (isRawMode.value) return "Modo Raw";
   if (isSyntheticMode.value) return "Modo Sintético";
   return "Sin modo activo";
 });
 
 const sendButtonLabel = computed(() => {
-  if (isXmlMode.value)       return `Construir y Enviar (${activeXmlFields.value.length} campos)`;
-  if (isRawMode.value)       return "Enviar Raw";
+  if (isXmlMode.value)
+    return `Construir y Enviar (${activeXmlFields.value.length} campos)`;
+  if (isRawMode.value) return "Enviar Raw";
   if (isSyntheticMode.value) return `Ejecutar Ráfaga (${batchSize.value} msgs)`;
   return "Enviar";
 });
 
-function typeColor(type) { return TYPE_META[type]?.color ?? "bg-gray-100 text-gray-500"; }
+function typeColor(type) {
+  return TYPE_META[type]?.color ?? "bg-gray-100 text-gray-500";
+}
 
 // ── Validación ────────────────────────────────────────────────────────────────
 
 const isFormValid = computed(() => {
-  if (isRawMode.value)       return rawString.value.trim().length > 0;
+  if (isRawMode.value) return rawString.value.trim().length > 0;
   if (isSyntheticMode.value) return batchSize.value > 0;
   if (isXmlMode.value) {
     if (!/^\d{4}$/.test(xmlMti.value)) return false;
     if (activeXmlFields.value.length === 0) return false;
-    return activeXmlFields.value.every(f => {
+    return activeXmlFields.value.every((f) => {
       const v = xmlForm.value[f.id]?.value ?? "";
       return v.length > 0 && isFieldValid(f, v);
     });
@@ -529,19 +843,34 @@ const isFormValid = computed(() => {
 // ── Envío ─────────────────────────────────────────────────────────────────────
 
 function handleDispatch() {
-  if (isXmlMode.value)       return handleSendXml();
-  if (isRawMode.value)       return handleSendRaw();
+  if (isXmlMode.value) return handleSendXml();
+  if (isRawMode.value) return handleSendRaw();
   if (isSyntheticMode.value) return handleSendSynthetic();
 }
 
 const handleSendXml = async () => {
   const fields = {};
-  activeXmlFields.value.forEach(f => { fields[String(f.id)] = xmlForm.value[f.id].value; });
-  await executePost({ is_synthetic: false, is_raw: false, mti: xmlMti.value, batch_size: 1, fields });
+  activeXmlFields.value.forEach((f) => {
+    fields[String(f.id)] = xmlForm.value[f.id].value;
+  });
+  await executePost({
+    is_synthetic: false,
+    is_raw: false,
+    mti: xmlMti.value,
+    batch_size: 1,
+    fields,
+  });
 };
 
 const handleSendRaw = async () => {
-  await executePost({ is_raw: true, is_synthetic: false, mti: "0000", raw_string: rawString.value.trim(), fields: {}, batch_size: 1 });
+  await executePost({
+    is_raw: true,
+    is_synthetic: false,
+    mti: "0000",
+    raw_string: rawString.value.trim(),
+    fields: {},
+    batch_size: 1,
+  });
 };
 
 const handleSendSynthetic = async () => {
@@ -558,10 +887,18 @@ const executePost = async (payload) => {
   responseFromServer.value = null;
   errorMessage.value = null;
   try {
-    const { data } = await axios.post("http://localhost:8080/send-message", payload);
-    responseFromServer.value = data.results?.length > 0
-      ? data.results[0]
-      : { generated_iso: data.generated_iso, host_response: data.host_response, sent: data.sent };
+    const { data } = await axios.post(
+      "http://localhost:8080/send-message",
+      payload,
+    );
+    responseFromServer.value =
+      data.results?.length > 0
+        ? data.results[0]
+        : {
+            generated_iso: data.generated_iso,
+            host_response: data.host_response,
+            sent: data.sent,
+          };
     if (data.sent === false) errorMessage.value = data.host_response;
   } catch (err) {
     errorMessage.value = err.response?.data?.detail || "Error de comunicación.";
@@ -572,11 +909,42 @@ const executePost = async (payload) => {
 </script>
 
 <style scoped>
-.animate-fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.slide-down-enter-active, .slide-down-leave-active { transition: all 0.2s ease; overflow: hidden; }
-.slide-down-enter-from, .slide-down-leave-to { opacity: 0; max-height: 0; transform: translateY(-4px); }
-.slide-down-enter-to, .slide-down-leave-from { opacity: 1; max-height: 120px; transform: translateY(0); }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-4px);
+}
+.slide-down-enter-to,
+.slide-down-leave-from {
+  opacity: 1;
+  max-height: 120px;
+  transform: translateY(0);
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
