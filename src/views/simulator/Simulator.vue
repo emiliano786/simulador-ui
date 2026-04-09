@@ -39,46 +39,6 @@
             <div
               class="mb-8 flex flex-col gap-4 p-4 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-800"
             >
-              <!-- Modo Sintético -->
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                  <div class="relative inline-block w-10 h-5">
-                    <input
-                      type="checkbox"
-                      v-model="isSyntheticMode"
-                      @change="onSyntheticToggle"
-                      id="syntheticToggle"
-                      class="peer absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-[#8b5cf6] shadow-sm"
-                    />
-                    <label
-                      for="syntheticToggle"
-                      class="block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#8b5cf6] cursor-pointer"
-                    ></label>
-                  </div>
-                  <label
-                    for="syntheticToggle"
-                    class="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer"
-                  >
-                    Generación Sintética (XML/CSV)
-                  </label>
-                </div>
-                <transition name="fade">
-                  <div v-if="isSyntheticMode" class="flex items-center gap-3">
-                    <span
-                      class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
-                      >Cantidad:</span
-                    >
-                    <input
-                      type="number"
-                      v-model="batchSize"
-                      min="1"
-                      max="50"
-                      class="w-16 p-2 text-sm font-bold bg-white dark:bg-black border border-gray-200 dark:border-slate-700 rounded-lg text-[#8b5cf6] focus:ring-1 focus:ring-purple-500 outline-none"
-                    />
-                  </div>
-                </transition>
-              </div>
-
               <!-- Modo Raw -->
               <div
                 class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center gap-4"
@@ -105,15 +65,43 @@
               </div>
 
               <transition name="fade">
-                <div v-if="isRawMode" class="space-y-3">
+                <div v-if="isRawMode" class="space-y-3 pt-4">
+                  <div class="flex justify-between items-center">
+                    <label
+                      class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+                    >
+                      Cadena ISO8583 Raw
+                    </label>
+                    <button
+                      type="button"
+                      @click="fillSyntheticRaw"
+                      class="text-[9px] bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 border border-cyan-500/30 px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="3"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      GENERAR EJEMPLO
+                    </button>
+                  </div>
+
                   <textarea
                     v-model="rawString"
                     rows="4"
                     placeholder="Pega aquí tu cadena ISO8583..."
                     class="w-full font-mono text-xs bg-white dark:bg-black border border-orange-200 dark:border-orange-900/50 rounded-xl p-4 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-orange-400 outline-none resize-none leading-relaxed placeholder-gray-300 dark:placeholder-gray-700"
-                  />
+                  ></textarea>
 
-                  <!-- Preview de la cadena pegada -->
                   <div
                     v-if="rawPreview"
                     class="rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-black overflow-hidden"
@@ -352,53 +340,182 @@
                           <span
                             :class="typeColor(field.type)"
                             class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                            >{{ field.typeShort }}</span
                           >
-                            {{ field.typeShort }}
-                          </span>
                           <span
                             class="text-[9px] font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                            >{{ field.lengthLabel }}</span
                           >
-                            {{ field.lengthLabel }}
-                          </span>
                         </div>
 
                         <transition name="slide-down">
-                          <div v-if="xmlForm[field.id]?.active" class="mt-2">
+                          <div
+                            v-if="xmlForm[field.id]?.active"
+                            class="mt-2 flex flex-col gap-2"
+                          >
                             <input
                               v-model="xmlForm[field.id].value"
                               :maxlength="field.maxInput"
                               :placeholder="field.placeholder"
+                              :disabled="xmlForm[field.id].synthetic"
                               :class="[
                                 'w-full font-mono text-xs px-3 py-2 rounded-lg border outline-none transition-all',
-                                'bg-white dark:bg-black text-gray-800 dark:text-gray-100',
-                                'placeholder-gray-300 dark:placeholder-gray-600',
+                                xmlForm[field.id].synthetic
+                                  ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-400 border-purple-200 cursor-not-allowed'
+                                  : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100',
+                                !xmlForm[field.id].synthetic &&
+                                  'placeholder-gray-300 dark:placeholder-gray-600',
+                                !xmlForm[field.id].synthetic &&
                                 xmlForm[field.id].value &&
                                 !isFieldValid(field, xmlForm[field.id].value)
                                   ? 'border-red-300 dark:border-red-700 focus:ring-2 focus:ring-red-200'
-                                  : 'border-cyan-200 dark:border-cyan-900/40 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900',
+                                  : !xmlForm[field.id].synthetic &&
+                                    'border-cyan-200 dark:border-cyan-900/40 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900',
                               ]"
                             />
-                            <div class="flex items-center justify-between mt-1">
-                              <span
-                                class="text-[9px] text-gray-400 dark:text-gray-600"
-                                >{{ field.hint }}</span
+
+                            <div
+                              class="flex flex-wrap items-center justify-between gap-2"
+                            >
+                              <button
+                                @click="
+                                  xmlForm[field.id].synthetic =
+                                    !xmlForm[field.id].synthetic
+                                "
+                                class="px-2.5 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border"
+                                :class="
+                                  xmlForm[field.id].synthetic
+                                    ? 'bg-purple-100 border-purple-300 text-purple-600 dark:bg-purple-900/40 dark:border-purple-700'
+                                    : 'bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100 dark:bg-slate-800 dark:border-slate-700'
+                                "
                               >
-                              <span
-                                :class="[
-                                  'text-[9px] font-mono font-bold',
-                                  xmlForm[field.id].value &&
-                                  !isFieldValid(field, xmlForm[field.id].value)
-                                    ? 'text-red-400'
-                                    : 'text-gray-300 dark:text-slate-700',
-                                ]"
-                              >
-                                {{ xmlForm[field.id].value?.length || 0 }}/{{
-                                  field.length
-                                }}
-                              </span>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="w-3 h-3 shrink-0"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="m21 16-4 4-4-4" />
+                                  <path d="M17 20V4" />
+                                  <path d="m3 8 4-4 4 4" />
+                                  <path d="M7 4v16" />
+                                </svg>
+                                <span
+                                  class="text-[9px] font-bold uppercase tracking-widest"
+                                >
+                                  {{
+                                    xmlForm[field.id].synthetic
+                                      ? "Generar valor sintético"
+                                      : "Valor estático"
+                                  }}
+                                </span>
+                              </button>
+
+                              <div class="flex items-center gap-3 text-right">
+                                <span
+                                  class="text-[9px] text-gray-400 dark:text-gray-600"
+                                >
+                                  {{
+                                    xmlForm[field.id].synthetic
+                                      ? "Ignorará tu texto a partir del segundo mensaje"
+                                      : field.hint
+                                  }}
+                                </span>
+                                <span
+                                  v-if="!xmlForm[field.id].synthetic"
+                                  :class="[
+                                    'text-[9px] font-mono font-bold',
+                                    xmlForm[field.id].value &&
+                                    !isFieldValid(
+                                      field,
+                                      xmlForm[field.id].value,
+                                    )
+                                      ? 'text-red-400'
+                                      : 'text-gray-300 dark:text-slate-700',
+                                  ]"
+                                >
+                                  {{ xmlForm[field.id].value?.length || 0 }}/{{
+                                    field.length
+                                  }}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </transition>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="mt-8 p-6 rounded-2xl border border-cyan-100 dark:border-cyan-900/30 bg-cyan-50/10 dark:bg-cyan-900/5 space-y-6"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+                      ></div>
+                      <h3
+                        class="text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300"
+                      >
+                        Ajustes de Envío y Ráfaga
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                      <div class="flex justify-between items-center">
+                        <label
+                          class="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                          >Cantidad de Mensajes</label
+                        >
+                        <input
+                          type="number"
+                          v-model="batchSize"
+                          class="w-20 p-2 text-center text-sm font-mono font-bold bg-white dark:bg-black border border-cyan-200 dark:border-cyan-900/50 rounded-lg text-cyan-600 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none"
+                        />
+                      </div>
+                      <input
+                        type="range"
+                        v-model="batchSize"
+                        min="1"
+                        max="100"
+                        class="w-full h-1.5 bg-cyan-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                      />
+                      <p class="text-[9px] text-gray-400 italic">
+                        Se enviará la trama repetidamente hasta completar
+                        {{ batchSize }} envíos.
+                      </p>
+                    </div>
+
+                    <div class="space-y-4">
+                      <div class="flex justify-between items-center">
+                        <label
+                          class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          >Retraso entre envíos</label
+                        >
+                        <span class="text-xs font-mono font-bold text-cyan-500"
+                          >{{ delayMs }} ms</span
+                        >
+                      </div>
+                      <input
+                        type="range"
+                        v-model="delayMs"
+                        min="0"
+                        max="5000"
+                        step="100"
+                        class="w-full h-1.5 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                      />
+                      <div
+                        class="flex justify-between text-[8px] text-gray-400 font-bold uppercase pt-1"
+                      >
+                        <span>0ms (Instantáneo)</span>
+                        <span>5s (Lento)</span>
                       </div>
                     </div>
                   </div>
@@ -523,6 +640,7 @@ import axios from "axios";
 import ContentTpl from "@/layouts/ContentTpl.vue";
 
 const { t } = useI18n();
+const delayMs = ref(0);
 
 // Modos mutuamente excluyentes
 const isSyntheticMode = ref(false);
@@ -548,7 +666,10 @@ const onXmlToggle = () => {
   }
 };
 
+const showConfig = ref(false);
 const batchSize = ref(1);
+const uniqueF11 = ref(false);
+const burstSynthetic = ref(false);
 const rawString = ref("");
 const isLoading = ref(false);
 const responseFromServer = ref(null);
@@ -603,6 +724,32 @@ const rawPreview = computed(() => {
 
   return { mti, bitmap1: bitmapHex1, bitmap2, activeFields };
 });
+
+const fillSyntheticRaw = async () => {
+  try {
+    isLoading.value = true;
+
+    const { data } = await axios.get(
+      "http://localhost:8080/api/generate-raw-sample",
+    );
+
+    // Imprimimos en la consola del navegador para diagnosticar
+    console.log("Respuesta del servidor para RAW:", data);
+
+    if (data && data.raw_iso) {
+      rawString.value = data.raw_iso;
+    } else {
+      console.warn(
+        "El servidor respondió 200 OK, pero raw_iso está vacío:",
+        data,
+      );
+    }
+  } catch (error) {
+    console.error("Error al obtener muestra raw:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 function hexToBin(hex) {
   return hex
@@ -684,44 +831,14 @@ function buildPlaceholder({ type, length }) {
   return `Hasta ${length} caracteres`;
 }
 
-function generateDefaultValue(field) {
-  const id = parseInt(field.id);
-  const now = new Date();
-
-  const pad = (n) => n.toString().padStart(2, "0");
-
-  const fullYear = now.getFullYear().toString();
-  const yy = fullYear.slice(-2);
-  const month = pad(now.getMonth() + 1);
-  const day = pad(now.getDate());
-  const hours = pad(now.getHours());
-  const mins = pad(now.getMinutes());
-  const secs = pad(now.getSeconds());
-
-  if (id === 4) {
-    const maxDigits = field.length;
-    const randomNumber = Math.floor(
-      Math.random() * Math.pow(10, maxDigits),
-    ).toString();
-    return randomNumber.padStart(field.length, "0");
-  }
-
-  if (id === 7) return `${month}${day}${hours}${mins}${secs}`;
-  if (id === 12) return `${hours}${mins}${secs}`;
-  if (id === 13) return `${month}${day}`;
-  if (id === 14) return `${month}${day}`;
-  if (id === 15) return `${yy}${month}${day}`;
-
-  let asc = "";
-  for (let i = 1; i <= field.length; i++) asc += (i % 10).toString();
-  return asc.slice(0, field.length);
-}
-
 async function loadXmlFields() {
   xmlLoading.value = true;
   xmlError.value = null;
   try {
     const { data } = await axios.get("http://localhost:8080/xml-fields");
+    const { data: defaults } = await axios.get(
+      "http://localhost:8080/api/default-values",
+    );
     xmlFields.value = data
       .filter((f) => f.id !== 0 && f.id !== 1)
       .sort((a, b) => a.id - b.id)
@@ -753,8 +870,9 @@ async function loadXmlFields() {
     const initial = {};
     xmlFields.value.forEach((f) => {
       initial[f.id] = {
-        active: true, // Todos seleccionados
-        value: generateDefaultValue(f), // Valor por defecto inteligente
+        active: true,
+        value: defaults[f.id] || "",
+        synthetic: false,
       };
     });
     xmlForm.value = initial;
@@ -850,15 +968,22 @@ function handleDispatch() {
 
 const handleSendXml = async () => {
   const fields = {};
+  const syntheticFields = [];
   activeXmlFields.value.forEach((f) => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
+
+    if (xmlForm.value[f.id].synthetic) {
+      syntheticFields.push(String(f.id));
+    }
   });
   await executePost({
     is_synthetic: false,
     is_raw: false,
     mti: xmlMti.value,
-    batch_size: 1,
+    batch_size: batchSize.value,
+    delay_ms: parseInt(delayMs.value),
     fields,
+    synthetic_fields: syntheticFields,
   });
 };
 
@@ -946,5 +1071,25 @@ const executePost = async (payload) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #06b6d4;
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #06b6d4;
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer;
 }
 </style>
