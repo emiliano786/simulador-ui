@@ -292,164 +292,159 @@
                   </button>
                 </div>
 
-                <div v-else class="space-y-2">
-                  <div
-                    v-for="field in xmlFields"
-                    :key="field.id"
-                    :class="[
-                      'rounded-xl border transition-all duration-200',
-                      xmlForm[field.id]?.active
-                        ? 'border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/30 dark:bg-cyan-900/10'
-                        : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-[#0d1421]',
-                    ]"
-                  >
-                    <div class="flex items-start gap-3 p-3">
+                <div v-else class="flex flex-col gap-6">
+                 
+                  <div class="bg-gray-50/50 dark:bg-slate-900/30 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-inner flex flex-col gap-4">
+                   
+                    <div class="flex justify-between items-center">
+                      <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                        Mapa de Campos
+                        <span v-if="gridTool === 'edit'">— Seleccionar campo </span>
+                        <span v-if="gridTool === 'toggle_active'" class="text-cyan-500">— Prender/Apagar</span>
+                        <span v-if="gridTool === 'toggle_synthetic'" class="text-purple-500">— Activar Sintético</span>
+                      </span>
+                      <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 px-2 py-1 rounded">
+                        {{ activeXmlFields.length }} Activos
+                      </span>
+                    </div>
+                   
+                    <div class="flex flex-wrap gap-2">
                       <button
-                        @click="toggleXmlField(field.id)"
+                        v-for="field in xmlFields"
+                        :key="field.id"
+                        @click="handleGridFieldClick(field.id)"
+                        class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-all duration-200 border-2"
                         :class="[
-                          'mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
-                          xmlForm[field.id]?.active
-                            ? 'bg-[#06b6d4] border-[#06b6d4] text-white'
-                            : 'border-gray-300 dark:border-slate-600 hover:border-[#06b6d4]',
+                          selectedFieldEdit === field.id
+                            ? (xmlForm[field.id].synthetic
+                                ? 'bg-purple-500 border-purple-500 text-white shadow-[0_4px_12px_rgba(168,85,247,0.4)] scale-110 z-10 ring-2 ring-purple-200 dark:ring-purple-900'
+                                : 'bg-cyan-500 border-cyan-500 text-white shadow-[0_4px_12px_rgba(6,182,212,0.4)] scale-110 z-10 ring-2 ring-cyan-200 dark:ring-cyan-900')
+                            : xmlForm[field.id]?.active
+                              ? xmlForm[field.id]?.synthetic
+                                ? 'bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300 hover:bg-purple-100'
+                                : 'bg-cyan-50 border-cyan-300 text-cyan-700 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-300 hover:bg-cyan-100'
+                              : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 dark:bg-[#0d1421] dark:border-slate-700'
                         ]"
+                        :title="field.name"
                       >
-                        <svg
-                          v-if="xmlForm[field.id]?.active"
-                          viewBox="0 0 12 10"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          class="w-3 h-3"
-                        >
-                          <polyline points="1 5 4.5 8.5 11 1" />
-                        </svg>
+                        {{ field.id }}
                       </button>
+                    </div>
 
-                      <div class="flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center gap-2 mb-0.5">
-                          <span
-                            class="text-[10px] font-black text-gray-400 dark:text-gray-500 font-mono w-7 shrink-0"
-                            >F{{ field.id }}</span
-                          >
-                          <span
-                            class="text-xs font-semibold text-gray-700 dark:text-gray-200 flex-1 truncate"
-                            >{{ field.name }}</span
-                          >
-                          <span
-                            :class="typeColor(field.type)"
-                            class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded font-mono flex-shrink-0"
-                            >{{ field.typeShort }}</span
-                          >
-                          <span
-                            class="text-[9px] font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono flex-shrink-0"
-                            >{{ field.lengthLabel }}</span
-                          >
-                        </div>
-
-                        <transition name="slide-down">
-                          <div
-                            v-if="xmlForm[field.id]?.active"
-                            class="mt-2 flex flex-col gap-2"
-                          >
-                            <input
-                              v-model="xmlForm[field.id].value"
-                              :maxlength="field.maxInput"
-                              :placeholder="field.placeholder"
-                              :disabled="xmlForm[field.id].synthetic"
-                              :class="[
-                                'w-full font-mono text-xs px-3 py-2 rounded-lg border outline-none transition-all',
-                                xmlForm[field.id].synthetic
-                                  ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-400 border-purple-200 cursor-not-allowed'
-                                  : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100',
-                                !xmlForm[field.id].synthetic &&
-                                  'placeholder-gray-300 dark:placeholder-gray-600',
-                                !xmlForm[field.id].synthetic &&
-                                xmlForm[field.id].value &&
-                                !isFieldValid(field, xmlForm[field.id].value)
-                                  ? 'border-red-300 dark:border-red-700 focus:ring-2 focus:ring-red-200'
-                                  : !xmlForm[field.id].synthetic &&
-                                    'border-cyan-200 dark:border-cyan-900/40 focus:ring-2 focus:ring-cyan-200 dark:focus:ring-cyan-900',
-                              ]"
-                            />
-
-                            <div
-                              class="flex flex-wrap items-center justify-between gap-2"
-                            >
-                              <button
-                                @click="
-                                  xmlForm[field.id].synthetic =
-                                    !xmlForm[field.id].synthetic
-                                "
-                                class="px-2.5 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border"
-                                :class="
-                                  xmlForm[field.id].synthetic
-                                    ? 'bg-purple-100 border-purple-300 text-purple-600 dark:bg-purple-900/40 dark:border-purple-700'
-                                    : 'bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100 dark:bg-slate-800 dark:border-slate-700'
-                                "
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  class="w-3 h-3 shrink-0"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  stroke-width="2"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                >
-                                  <path d="m21 16-4 4-4-4" />
-                                  <path d="M17 20V4" />
-                                  <path d="m3 8 4-4 4 4" />
-                                  <path d="M7 4v16" />
-                                </svg>
-                                <span
-                                  class="text-[9px] font-bold uppercase tracking-widest"
-                                >
-                                  {{
-                                    xmlForm[field.id].synthetic
-                                      ? "Generar valor sintético"
-                                      : "Valor estático"
-                                  }}
-                                </span>
-                              </button>
-
-                              <div class="flex items-center gap-3 text-right">
-                                <span
-                                  class="text-[9px] text-gray-400 dark:text-gray-600"
-                                >
-                                  {{
-                                    xmlForm[field.id].synthetic
-                                      ? "Ignorará tu texto a partir del segundo mensaje"
-                                      : field.hint
-                                  }}
-                                </span>
-                                <span
-                                  v-if="!xmlForm[field.id].synthetic"
-                                  :class="[
-                                    'text-[9px] font-mono font-bold',
-                                    xmlForm[field.id].value &&
-                                    !isFieldValid(
-                                      field,
-                                      xmlForm[field.id].value,
-                                    )
-                                      ? 'text-red-400'
-                                      : 'text-gray-300 dark:text-slate-700',
-                                  ]"
-                                >
-                                  {{ xmlForm[field.id].value?.length || 0 }}/{{
-                                    field.length
-                                  }}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </transition>
-                      </div>
+                    <div class="mt-2 flex flex-wrap items-center justify-center gap-2 p-1.5 bg-gray-200/50 dark:bg-slate-800/50 rounded-xl w-fit mx-auto border border-gray-300 dark:border-slate-700">
+                      <button
+                        @click="gridTool = 'edit'"
+                        :class="gridTool === 'edit' ? 'bg-white dark:bg-slate-600 shadow text-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                        class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                      >
+                        Seleccionar
+                      </button>
+                      <button
+                        @click="gridTool = 'toggle_active'"
+                        :class="gridTool === 'toggle_active' ? 'bg-cyan-500 shadow text-white' : 'text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400'"
+                        class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                      >
+                        Prender/Apagar
+                      </button>
+                      <button
+                        @click="gridTool = 'toggle_synthetic'"
+                        :class="gridTool === 'toggle_synthetic' ? 'bg-purple-500 shadow text-white' : 'text-gray-500 hover:text-purple-600 dark:hover:text-purple-400'"
+                        class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                      >
+                        Activar Sintético
+                      </button>
                     </div>
                   </div>
+
+                  <transition name="slide-down">
+                    <div v-if="currentEditField" class="rounded-2xl border-2 border-cyan-300 dark:border-cyan-700 bg-white dark:bg-[#111827] shadow-xl overflow-hidden relative">
+                     
+                      <button @click="selectedFieldEdit = null" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+
+                      <div class="p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
+                        <div class="flex flex-wrap items-center gap-3 pr-8">
+                          <span class="text-lg font-black text-cyan-600 dark:text-cyan-400 font-mono w-10">F{{ currentEditField.id }}</span>
+                          <span class="text-base font-bold text-gray-800 dark:text-gray-100">{{ currentEditField.name }}</span>
+                          <span :class="typeColor(currentEditField.type)" class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm font-mono">{{ currentEditField.typeShort }}</span>
+                          <span class="text-[10px] font-bold text-gray-500 bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded font-mono shadow-sm">{{ currentEditField.lengthLabel }}</span>
+                        </div>
+                      </div>
+
+                      <div class="p-6 flex flex-col gap-5">
+                        
+                        <input
+                          v-model="xmlForm[currentEditField.id].value"
+                          :maxlength="currentEditField.maxInput"
+                          :placeholder="currentEditField.placeholder"
+                          :class="[
+                            'w-full font-mono text-sm px-4 py-4 rounded-xl border-2 outline-none transition-all',
+                            xmlForm[currentEditField.id].synthetic
+                              ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 placeholder-purple-300 dark:placeholder-purple-800/50'
+                              : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700',
+                            xmlForm[currentEditField.id].value && !isFieldValid(currentEditField, xmlForm[currentEditField.id].value)
+                              ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
+                              : xmlForm[currentEditField.id].synthetic
+                                ? 'border-purple-300 dark:border-purple-700/50 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.15)]'
+                                : 'border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]'
+                          ]"
+                        />
+
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          
+                          <div class="flex flex-wrap items-center gap-3">
+                            <button
+                              @click="xmlForm[currentEditField.id].synthetic = !xmlForm[currentEditField.id].synthetic"
+                              class="px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all border-2 font-bold uppercase tracking-widest text-[10px]"
+                              :class="
+                                xmlForm[currentEditField.id].synthetic
+                                  ? 'bg-purple-100 border-purple-400 text-purple-700 dark:bg-purple-900/60 dark:border-purple-500 dark:text-purple-300 shadow-sm'
+                                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:border-gray-300 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700'
+                              "
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m21 16-4 4-4-4" />
+                                <path d="M17 20V4" />
+                                <path d="m3 8 4-4 4 4" />
+                                <path d="M7 4v16" />
+                              </svg>
+                              {{ xmlForm[currentEditField.id].synthetic ? 'Sintético Activado' : 'Activar Sintético' }}
+                            </button>
+
+                            <button
+                              @click="deactivateField(currentEditField.id)"
+                              class="px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-[10px] font-bold uppercase tracking-widest border-2 border-transparent hover:border-red-200 dark:hover:border-red-800"
+                            >
+                              Apagar Campo
+                            </button>
+                          </div>
+
+                          <div class="flex flex-col sm:items-end gap-1 text-left sm:text-right">
+                            <span class="text-[10px] font-medium" :class="xmlForm[currentEditField.id].synthetic ? 'text-purple-500 dark:text-purple-400' : 'text-gray-500 dark:text-gray-400'">
+                              {{ xmlForm[currentEditField.id].synthetic ? "Este texto se enviará en el mensaje 1, luego mutará." : currentEditField.hint }}
+                            </span>
+                            
+                            <span
+                              :class="[
+                                'text-[11px] font-mono font-bold px-2 py-1 rounded border',
+                                xmlForm[currentEditField.id].value && !isFieldValid(currentEditField, xmlForm[currentEditField.id].value)
+                                  ? 'text-red-500 border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                                  : xmlForm[currentEditField.id].synthetic
+                                    ? 'text-purple-600 border-purple-200 bg-purple-50 dark:text-purple-300 dark:border-purple-800 dark:bg-purple-900/20'
+                                    : 'text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-400 dark:border-slate-800 dark:bg-black',
+                              ]"
+                            >
+                              {{ xmlForm[currentEditField.id].value?.length || 0 }} / {{ currentEditField.length }} chars
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+
                 </div>
+                   
 
                 <div
                   class="mt-8 p-6 rounded-2xl border border-cyan-100 dark:border-cyan-900/30 bg-cyan-50/10 dark:bg-cyan-900/5 space-y-6"
@@ -462,7 +457,7 @@
                       <h3
                         class="text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300"
                       >
-                        Ajustes de Envío y Ráfaga
+                        Ajustes de Envío
                       </h3>
                     </div>
                   </div>
@@ -895,7 +890,48 @@ function clearXmlFields() {
     xmlForm.value[k].active = false;
     xmlForm.value[k].value = "";
   });
+  selectedFieldEdit.value=null;
 }
+
+const selectedFieldEdit = ref(null);
+
+const gridTool = ref('edit');
+
+const currentEditField = computed(() =>
+  selectedFieldEdit.value ? xmlFields.value.find((f) => f.id === selectedFieldEdit.value) : null
+);
+
+const handleGridFieldClick = (id) => {
+  const fieldData = xmlForm.value[id];
+
+  if (gridTool.value === 'edit') {
+    if (!fieldData.active) {
+      fieldData.active = true;
+    }
+    selectedFieldEdit.value = selectedFieldEdit.value === id ? null : id;
+  }
+  else if (gridTool.value === 'toggle_active') {
+    fieldData.active = !fieldData.active;
+    if (!fieldData.active) {
+      // fieldData.value = ""; <--- ¡ELIMINA O COMENTA ESTA LÍNEA!
+      fieldData.synthetic = false; // Solo apagamos el modo sintético por si acaso
+      if (selectedFieldEdit.value === id) {
+        selectedFieldEdit.value = null;
+      }
+    }
+  }
+  else if (gridTool.value === 'toggle_synthetic') {
+    if (fieldData.active) {
+      fieldData.synthetic = !fieldData.synthetic;
+    }
+  }
+};
+
+const deactivateField = (id) => {
+  xmlForm.value[id].active = false;
+  xmlForm.value[id].synthetic = false;
+  selectedFieldEdit.value = null;
+};
 
 function isFieldValid(field, value) {
   if (!value) return true;
