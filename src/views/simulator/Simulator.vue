@@ -1,7 +1,8 @@
 <template>
   <content-tpl>
+    
     <template #header-left>
-      <div class="flex items-center justify-between w-full xl:w-[75vw]"> 
+      <div class="flex items-center justify-between w-full xl:w-[75vw]">
         
         <div class="flex flex-col">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
@@ -12,14 +13,37 @@
           </p>
         </div>
 
-        <button @click="toggleDarkMode" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm">
-          <span class="material-symbols-outlined text-[18px]">
-            {{ isDark ? "light_mode" : "dark_mode" }}
-          </span>
-          <span class="text-[10px] font-bold uppercase tracking-widest">
-            {{ isDark ? "Modo Claro" : "Modo Oscuro" }}
-          </span>
-        </button>
+        <div class="flex items-center gap-3">
+          
+          <div class="relative flex items-center bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full pl-4 pr-8 py-2 shadow-sm transition-all hover:border-cyan-300 dark:hover:border-cyan-700">
+            <svg class="w-4 h-4 text-cyan-500 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <select
+              v-model="selectedXmlFile"
+              @change="onXmlChange"
+              class="bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 outline-none cursor-pointer appearance-none w-full"
+            >
+              <option value="" disabled v-if="availableXmlFiles.length === 0">Cargando...</option>
+              <option v-for="file in availableXmlFiles" :key="file" :value="file" class="bg-white dark:bg-slate-800 text-gray-800 dark:text-white">
+                {{ file }}
+              </option>
+            </select>
+            <div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+
+          <button
+            @click="toggleDarkMode"
+            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm"
+          >
+            <span class="material-symbols-outlined text-[18px]">
+              {{ isDark ? "light_mode" : "dark_mode" }}
+            </span>
+            <span class="text-[10px] font-bold uppercase tracking-widest">
+              {{ isDark ? "Modo Claro" : "Modo Oscuro" }}
+            </span>
+          </button>
+        </div>
 
       </div>
     </template>
@@ -32,7 +56,7 @@
             <h2 class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
               Configuración de Envío
             </h2>
-           
+            
             <div :class="modeBadgeClass" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors">
               {{ modeBadgeLabel }}
             </div>
@@ -333,13 +357,18 @@ const toggleDarkMode = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
     isDark.value = true;
     document.documentElement.classList.add("dark");
   }
-  loadXmlFields();
+  
+  // 1. Buscamos qué archivos XML existen en Python
+  await fetchXmlFiles();
+  
+  // 2. Cargamos los campos del XML que esté activo
+  await loadXmlFields();
 });
 
 const { t } = useI18n();
@@ -368,10 +397,15 @@ const errorMessage = ref(null);
 // Mapeo de clases jPOS
 const TYPE_META = {
   IFA_NUMERIC: { short: "NUM", color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400", isVar: false, isNum: true, isBin: false },
+  IFA_AMOUNT: { short: "AMT", color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400", isVar: false, isNum: false, isBin: false },
+  IFA_LLNUM: { short: "LLNUM", color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400", isVar: true, isNum: true, isBin: false },
+  IFA_LLLNUM: { short: "LLLNUM", color: "bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400", isVar: true, isNum: true, isBin: false },
   IFA_LLCHAR: { short: "LLVAR", color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400", isVar: true, isNum: false, isBin: false },
   IFA_LLLCHAR: { short: "LLLVAR", color: "bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400", isVar: true, isNum: false, isBin: false },
   IFA_LLLLCHAR: { short: "LLLLVAR", color: "bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400", isVar: true, isNum: false, isBin: false },
   IFA_BINARY: { short: "BIN", color: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400", isVar: false, isNum: false, isBin: true },
+  IFA_LLBINARY: { short: "LLBIN", color: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400", isVar: true, isNum: false, isBin: true },
+  IFA_LLLBINARY: { short: "LLLBIN", color: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400", isVar: true, isNum: false, isBin: true },
 };
 
 const xmlFields = ref([]);
@@ -403,6 +437,43 @@ function buildPlaceholder({ type, length }) {
   return `Hasta ${length} caracteres`;
 }
 
+const availableXmlFiles = ref([]);
+const selectedXmlFile = ref("");
+
+const fetchXmlFiles = async () => {
+  try {
+    const { data } = await axios.get("http://localhost:8080/api/xml-files");
+    availableXmlFiles.value = data.files || [];
+    selectedXmlFile.value = data.current || (availableXmlFiles.value.length ? availableXmlFiles.value[0] : "");
+  } catch (error) {
+    console.error("Error obteniendo lista de XMLs:", error);
+  }
+};
+
+const onXmlChange = async () => {
+  if (!selectedXmlFile.value) return;
+  
+  xmlLoading.value = true;
+  xmlError.value = null;
+  
+  try {
+    // 1. Le decimos al Backend de Python que cambie el estándar
+    await axios.post("http://localhost:8080/api/set-xml", { filename: selectedXmlFile.value });
+    
+    // 2. Limpiamos la basura del formulario anterior
+    clearXmlFields(); 
+    
+    // 3. Descargamos las reglas del nuevo estándar
+    await loadXmlFields();
+    
+  } catch (error) {
+    console.error("Error cambiando XML:", error);
+    xmlError.value = "Error al cambiar el archivo XML en el servidor.";
+  } finally {
+    xmlLoading.value = false;
+  }
+};
+
 async function loadXmlFields() {
   xmlLoading.value = true;
   xmlError.value = null;
@@ -422,6 +493,7 @@ async function loadXmlFields() {
 
     const initial = {};
     xmlFields.value.forEach((f) => {
+      // AQUÍ ESTÁ LA MAGIA: Le decimos 'active: true' para que todos nazcan encendidos
       initial[f.id] = { active: true, value: defaults[f.id] || "", synthetic: false };
     });
     xmlForm.value = initial;
