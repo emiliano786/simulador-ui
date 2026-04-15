@@ -1,6 +1,5 @@
 <template>
   <content-tpl>
-    
     <template #header-left>
       <div class="flex items-center justify-between w-full xl:w-[75vw]">
         
@@ -56,7 +55,6 @@
             <h2 class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
               Configuración de Envío
             </h2>
-            
             <div :class="modeBadgeClass" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors">
               {{ modeBadgeLabel }}
             </div>
@@ -158,6 +156,7 @@
                     </div>
 
                     <div v-else class="flex flex-col gap-6">
+                      
                       <div class="bg-gray-50/50 dark:bg-slate-900/30 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-inner flex flex-col gap-4">
                         <div class="flex justify-between items-center">
                           <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">
@@ -188,11 +187,30 @@
                           </button>
                         </div>
 
-                        <div class="mt-2 flex flex-wrap items-center justify-center gap-2 p-1.5 bg-gray-200/50 dark:bg-slate-800/50 rounded-xl w-fit mx-auto border border-gray-300 dark:border-slate-700">
-                          <button @click="gridTool = 'edit'" :class="gridTool === 'edit' ? 'bg-white dark:bg-slate-600 shadow text-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Seleccionar</button>
-                          <button @click="gridTool = 'toggle_active'" :class="gridTool === 'toggle_active' ? 'bg-cyan-500 shadow text-white' : 'text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Prender/Apagar</button>
-                          <button @click="gridTool = 'toggle_synthetic'" :class="gridTool === 'toggle_synthetic' ? 'bg-purple-500 shadow text-white' : 'text-gray-500 hover:text-purple-600 dark:hover:text-purple-400'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Activar Sintético</button>
+                        <div class="mt-4 flex flex-col items-center gap-3">
+                          <div class="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-gray-200/50 dark:bg-slate-800/50 rounded-xl w-fit mx-auto border border-gray-300 dark:border-slate-700">
+                            <button @click="gridTool = 'edit'" :class="gridTool === 'edit' ? 'bg-white dark:bg-slate-600 shadow text-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Seleccionar</button>
+                            <button @click="gridTool = 'toggle_active'" :class="gridTool === 'toggle_active' ? 'bg-cyan-500 shadow text-white' : 'text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Prender/Apagar</button>
+                            <button @click="gridTool = 'toggle_synthetic'" :class="gridTool === 'toggle_synthetic' ? 'bg-purple-500 shadow text-white' : 'text-gray-500 hover:text-purple-600 dark:hover:text-purple-400'" class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Activar Sintético</button>
+                          </div>
+
+                          <div class="h-6 flex items-center justify-center">
+                            <transition name="fade" mode="out-in">
+                              <div v-if="gridTool === 'toggle_active'" key="active-tools" class="flex gap-3">
+                                <button @click="toggleAllFields('active', true)" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-cyan-500/30 text-cyan-600 bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors">Encender Todos</button>
+                                <button @click="toggleAllFields('active', false)" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-red-500/30 text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors">Apagar Todos</button>
+                              </div>
+                              <div v-else-if="gridTool === 'toggle_synthetic'" key="synthetic-tools" class="flex gap-3">
+                                <button @click="toggleAllFields('synthetic', true)" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-purple-500/30 text-purple-600 bg-purple-500/10 hover:bg-purple-500/20 transition-colors">Todos Sintéticos</button>
+                                <button @click="toggleAllFields('synthetic', false)" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-gray-500/30 text-gray-500 bg-gray-500/10 hover:bg-gray-500/20 transition-colors">Ninguno Sintético</button>
+                              </div>
+                              <div v-else key="edit-tools" class="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                                Haz clic en un campo para editar sus valores
+                              </div>
+                            </transition>
+                          </div>
                         </div>
+
                       </div>
 
                       <transition name="slide-down">
@@ -364,20 +382,15 @@ onMounted(async () => {
     document.documentElement.classList.add("dark");
   }
   
-  // 1. Buscamos qué archivos XML existen en Python
   await fetchXmlFiles();
-  
-  // 2. Cargamos los campos del XML que esté activo
   await loadXmlFields();
 });
 
 const { t } = useI18n();
 
-// Variables de Configuración Global
 const delayMs = ref(0);
 const batchSize = ref(1);
 
-// Modos de operación
 const isRawMode = ref(false);
 const isXmlMode = ref(false);
 
@@ -394,7 +407,6 @@ const isLoading = ref(false);
 const responseFromServer = ref(null);
 const errorMessage = ref(null);
 
-// Mapeo de clases jPOS
 const TYPE_META = {
   IFA_NUMERIC: { short: "NUM", color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400", isVar: false, isNum: true, isBin: false },
   IFA_AMOUNT: { short: "AMT", color: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400", isVar: false, isNum: false, isBin: false },
@@ -457,15 +469,9 @@ const onXmlChange = async () => {
   xmlError.value = null;
   
   try {
-    // 1. Le decimos al Backend de Python que cambie el estándar
     await axios.post("http://localhost:8080/api/set-xml", { filename: selectedXmlFile.value });
-    
-    // 2. Limpiamos la basura del formulario anterior
     clearXmlFields(); 
-    
-    // 3. Descargamos las reglas del nuevo estándar
     await loadXmlFields();
-    
   } catch (error) {
     console.error("Error cambiando XML:", error);
     xmlError.value = "Error al cambiar el archivo XML en el servidor.";
@@ -493,7 +499,6 @@ async function loadXmlFields() {
 
     const initial = {};
     xmlFields.value.forEach((f) => {
-      // AQUÍ ESTÁ LA MAGIA: Le decimos 'active: true' para que todos nazcan encendidos
       initial[f.id] = { active: true, value: defaults[f.id] || "", synthetic: false };
     });
     xmlForm.value = initial;
@@ -520,6 +525,25 @@ const handleGridFieldClick = (id) => {
   else if (gridTool.value === 'toggle_synthetic') {
     if (fieldData.active) fieldData.synthetic = !fieldData.synthetic;
   }
+};
+
+const toggleAllFields = (type, state) => {
+  Object.keys(xmlForm.value).forEach((id) => {
+    const fieldData = xmlForm.value[id];
+    
+    if (type === 'active') {
+      fieldData.active = state;
+      if (!state) {
+        fieldData.synthetic = false;
+        if (selectedFieldEdit.value === parseInt(id)) selectedFieldEdit.value = null;
+      }
+    } 
+    else if (type === 'synthetic') {
+      if (fieldData.active || !state) {
+        fieldData.synthetic = state;
+      }
+    }
+  });
 };
 
 const deactivateField = (id) => {
