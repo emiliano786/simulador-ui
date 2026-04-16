@@ -194,6 +194,33 @@
                       class="w-24 px-3 py-2 text-sm font-mono font-bold bg-white dark:bg-black border border-cyan-200 dark:border-cyan-900/50 rounded-lg text-cyan-600 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-center"
                       placeholder="1100"
                     />
+
+                    <button
+                      @click="syncToRaw"
+                      :disabled="isSyncing || activeXmlFields.length === 0"
+                      class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg
+                        v-if="!isSyncing"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      <div
+                        v-else
+                        class="animate-spin w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full"
+                      ></div>
+                      Sincronizar Raw
+                    </button>
                   </div>
                 </div>
 
@@ -1254,6 +1281,42 @@ const fillSyntheticRaw = async () => {
     console.error("Error al obtener muestra raw:", error);
   } finally {
     isLoading.value = false;
+  }
+};
+
+// ── Sincronización (Editor -> Raw) ─────────────────────────
+const isSyncing = ref(false);
+
+const syncToRaw = async () => {
+  isSyncing.value = true;
+  try {
+    const fields = {};
+    activeXmlFields.value.forEach((f) => {
+      fields[String(f.id)] = xmlForm.value[f.id].value;
+    });
+
+    const { data } = await axios.post("http://localhost:8080/api/build-raw", {
+      mti: xmlMti.value,
+      fields: fields,
+    });
+
+    if (data && data.raw_iso) {
+      skipNextParse = true;
+      rawString.value = data.raw_iso;
+
+      const parsed = await axios.post("http://localhost:8080/api/parse", {
+        raw_string: data.raw_iso,
+      });
+      rawPreview.value = parsed.data;
+    }
+  } catch (err) {
+    alert(
+      "Error al sincronizar: \n" +
+        (err.response?.data?.detail ||
+          "Revisa que los campos cumplan con la longitud y formato correctos del XML."),
+    );
+  } finally {
+    isSyncing.value = false;
   }
 };
 
