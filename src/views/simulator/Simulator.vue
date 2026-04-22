@@ -1327,8 +1327,10 @@ const handleDispatch = async () => {
 
   const fields = {};
   const syntheticFields = [];
+
   activeXmlFields.value.forEach((f) => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
+
     if (xmlForm.value[f.id].synthetic) {
       syntheticFields.push(String(f.id));
     }
@@ -1337,7 +1339,8 @@ const handleDispatch = async () => {
   try {
     const { data } = await axios.post("http://localhost:8080/send-message", {
       is_raw: false,
-      is_synthetic: false,
+      is_synthetic: syntheticFields.length > 0,
+      burst_synthetic: syntheticFields.length > 0,
       mti: xmlMti.value,
       batch_size: batchSize.value,
       delay_ms: delayMs.value,
@@ -1347,12 +1350,13 @@ const handleDispatch = async () => {
 
     responseFromServer.value =
       data.results?.length > 0
-        ? data.results[0]
+        ? data.results[data.results.length - 1]
         : {
             generated_iso: data.generated_iso,
             host_response: data.host_response,
             sent: data.sent,
           };
+
     if (data.sent === false) errorMessage.value = data.host_response;
   } catch (err) {
     errorMessage.value =
