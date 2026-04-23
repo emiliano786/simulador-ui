@@ -465,6 +465,111 @@
                           ]"
                         />
 
+                        <transition name="fade">
+                          <div
+                            v-if="currentEditField.isNum"
+                            class="flex flex-wrap gap-4 p-4 mt-2 rounded-xl border transition-all"
+                            :class="
+                              xmlForm[currentEditField.id].synthetic
+                                ? 'bg-purple-50/50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800/50'
+                                : 'bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700'
+                            "
+                          >
+                            <div class="flex-1 min-w-[80px]">
+                              <label
+                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'text-purple-600 dark:text-purple-400'
+                                    : 'text-gray-500 dark:text-gray-400'
+                                "
+                                >Mínimo</label
+                              >
+                              <input
+                                type="number"
+                                v-model="xmlForm[currentEditField.id].minRange"
+                                @input="
+                                  enforceRangeLimit(
+                                    currentEditField.id,
+                                    'minRange',
+                                    currentEditField.maxInput,
+                                  )
+                                "
+                                min="0"
+                                :max="'9'.repeat(currentEditField.maxInput)"
+                                placeholder="Ej. 1"
+                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
+                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
+                                "
+                              />
+                            </div>
+
+                            <div class="flex-1 min-w-[80px]">
+                              <label
+                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'text-purple-600 dark:text-purple-400'
+                                    : 'text-gray-500 dark:text-gray-400'
+                                "
+                                >Máximo</label
+                              >
+                              <input
+                                type="number"
+                                v-model="xmlForm[currentEditField.id].maxRange"
+                                @input="
+                                  enforceRangeLimit(
+                                    currentEditField.id,
+                                    'maxRange',
+                                    currentEditField.maxInput,
+                                  )
+                                "
+                                min="1"
+                                :max="'9'.repeat(currentEditField.maxInput)"
+                                :placeholder="
+                                  'Ej. ' +
+                                  '9'.repeat(
+                                    Math.min(currentEditField.maxInput, 4),
+                                  )
+                                "
+                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
+                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
+                                "
+                              />
+                            </div>
+
+                            <div class="flex-1 min-w-[100px]">
+                              <label
+                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'text-purple-600 dark:text-purple-400'
+                                    : 'text-gray-500 dark:text-gray-400'
+                                "
+                                >Modo</label
+                              >
+                              <select
+                                v-model="xmlForm[currentEditField.id].mode"
+                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none cursor-pointer appearance-none transition-colors"
+                                :class="
+                                  xmlForm[currentEditField.id].synthetic
+                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
+                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
+                                "
+                              >
+                                <option value="random">Aleatorio</option>
+                                <option value="sequential">Secuencial</option>
+                              </select>
+                            </div>
+                          </div>
+                        </transition>
+
                         <div
                           class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                         >
@@ -855,6 +960,16 @@ const toggleDarkMode = () => {
   }
 };
 
+const enforceRangeLimit = (fieldId, type, maxLength) => {
+  const currentVal = xmlForm.value[fieldId][type];
+  if (currentVal !== null && currentVal !== "") {
+    const strVal = String(currentVal);
+    if (strVal.length > maxLength) {
+      xmlForm.value[fieldId][type] = Number(strVal.slice(0, maxLength));
+    }
+  }
+};
+
 onMounted(async () => {
   const savedTheme = localStorage.getItem("theme");
   if (
@@ -1069,7 +1184,14 @@ async function loadXmlFields() {
 
     const initial = {};
     xmlFields.value.forEach((f) => {
-      initial[f.id] = { active: false, value: "", synthetic: false };
+      initial[f.id] = {
+        active: false,
+        value: "",
+        synthetic: false,
+        minRange: "",
+        maxRange: "",
+        mode: "random",
+      };
     });
     xmlForm.value = initial;
   } catch {
@@ -1293,6 +1415,29 @@ const syncToRaw = async () => {
     const fields = {};
     activeXmlFields.value.forEach((f) => {
       fields[String(f.id)] = xmlForm.value[f.id].value;
+
+      let isSynthetic = xmlForm.value[f.id].synthetic;
+
+      if (f.isNum) {
+        const minVal = parseInt(xmlForm.value[f.id].minRange);
+        const maxVal = parseInt(xmlForm.value[f.id].maxRange);
+        const modeVal = xmlForm.value[f.id].mode || "random";
+
+        if (!isNaN(minVal) && !isNaN(maxVal)) {
+          syntheticConfig[String(f.id)] = {
+            min: minVal,
+            max: maxVal,
+            mode: modeVal,
+          };
+          isSynthetic = true;
+        }
+      }
+
+      if (isSynthetic) {
+        if (!syntheticFields.includes(String(f.id))) {
+          syntheticFields.push(String(f.id));
+        }
+      }
     });
 
     const { data } = await axios.post("http://localhost:8080/api/build-raw", {
@@ -1327,12 +1472,32 @@ const handleDispatch = async () => {
 
   const fields = {};
   const syntheticFields = [];
+  const syntheticConfig = {};
 
   activeXmlFields.value.forEach((f) => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
 
-    if (xmlForm.value[f.id].synthetic) {
-      syntheticFields.push(String(f.id));
+    let isSynthetic = xmlForm.value[f.id].synthetic;
+
+    if (f.isNum) {
+      const minVal = parseInt(xmlForm.value[f.id].minRange);
+      const maxVal = parseInt(xmlForm.value[f.id].maxRange);
+      const modeVal = xmlForm.value[f.id].mode || "random";
+
+      if (!isNaN(minVal) && !isNaN(maxVal)) {
+        syntheticConfig[String(f.id)] = {
+          min: minVal,
+          max: maxVal,
+          mode: modeVal,
+        };
+        isSynthetic = true;
+      }
+    }
+
+    if (isSynthetic) {
+      if (!syntheticFields.includes(String(f.id))) {
+        syntheticFields.push(String(f.id));
+      }
     }
   });
 
@@ -1346,6 +1511,7 @@ const handleDispatch = async () => {
       delay_ms: delayMs.value,
       fields,
       synthetic_fields: syntheticFields,
+      synthetic_config: syntheticConfig,
     });
 
     responseFromServer.value =
@@ -1389,7 +1555,7 @@ const handleDispatch = async () => {
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: transactiveXmllateY(-10px);
   max-height: 0;
 }
 .slide-down-enter-to,
