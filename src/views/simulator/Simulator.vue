@@ -6,7 +6,7 @@
           <h1
             class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight"
           >
-            {{ t("Simulador") || "Monitoreo de Procesos" }}
+            Simulador
           </h1>
           <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">
             Gestión de transacciones ISO8583.
@@ -943,7 +943,6 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import axios from "axios";
 import ContentTpl from "@/layouts/ContentTpl.vue";
 
@@ -983,8 +982,6 @@ onMounted(async () => {
   await fetchXmlFiles();
   await loadXmlFields();
 });
-
-const { t } = useI18n();
 
 const delayMs = ref(0);
 const batchSize = ref(1);
