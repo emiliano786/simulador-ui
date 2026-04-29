@@ -467,105 +467,202 @@
 
                         <transition name="fade">
                           <div
-                            v-if="currentEditField.isNum"
-                            class="flex flex-wrap gap-4 p-4 mt-2 rounded-xl border transition-all"
-                            :class="
-                              xmlForm[currentEditField.id].synthetic
-                                ? 'bg-purple-50/50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800/50'
-                                : 'bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700'
+                            v-if="
+                              currentEditField.isNum || currentEditField.id == 2
                             "
+                            class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700"
                           >
-                            <div class="flex-1 min-w-[80px]">
-                              <label
-                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'text-purple-600 dark:text-purple-400'
-                                    : 'text-gray-500 dark:text-gray-400'
-                                "
-                                >Mínimo</label
-                              >
+                            <label
+                              class="flex items-center gap-3 cursor-pointer w-fit select-none"
+                            >
                               <input
-                                type="number"
-                                v-model="xmlForm[currentEditField.id].minRange"
-                                @input="
-                                  enforceRangeLimit(
-                                    currentEditField.id,
-                                    'minRange',
-                                    currentEditField.maxInput,
-                                  )
+                                type="checkbox"
+                                v-model="xmlForm[currentEditField.id].useRange"
+                                @change="
+                                  if (!xmlForm[currentEditField.id].useRange) {
+                                    xmlForm[currentEditField.id].minRange = '';
+                                    xmlForm[currentEditField.id].maxRange = '';
+                                  } else {
+                                    xmlForm[currentEditField.id].usePanList =
+                                      false;
+                                  }
                                 "
-                                min="0"
-                                :max="'9'.repeat(currentEditField.maxInput)"
-                                placeholder="Ej. 1"
-                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
-                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
-                                "
+                                class="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer accent-cyan-500"
                               />
-                            </div>
-
-                            <div class="flex-1 min-w-[80px]">
-                              <label
-                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'text-purple-600 dark:text-purple-400'
-                                    : 'text-gray-500 dark:text-gray-400'
-                                "
-                                >Máximo</label
+                              <span
+                                class="text-[10px] font-bold uppercase tracking-widest transition-colors text-gray-500 dark:text-gray-400"
+                                :class="{
+                                  'text-cyan-600 dark:text-cyan-400':
+                                    xmlForm[currentEditField.id].useRange,
+                                }"
                               >
+                                Generar valores por rango
+                              </span>
+                            </label>
+
+                            <div
+                              v-if="xmlForm[currentEditField.id].useRange"
+                              class="flex flex-wrap gap-4 mt-2 animate-fade-in"
+                            >
+                              <div class="flex-1 min-w-[80px]">
+                                <label
+                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
+                                  >Mínimo</label
+                                >
+                                <input
+                                  type="number"
+                                  v-model="
+                                    xmlForm[currentEditField.id].minRange
+                                  "
+                                  @input="
+                                    enforceRangeLimit(
+                                      currentEditField.id,
+                                      'minRange',
+                                      currentEditField.maxInput,
+                                    )
+                                  "
+                                  min="0"
+                                  :max="'9'.repeat(currentEditField.maxInput)"
+                                  placeholder="Ej. 1"
+                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
+                                />
+                              </div>
+
+                              <div class="flex-1 min-w-[80px]">
+                                <label
+                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
+                                  >Máximo</label
+                                >
+                                <input
+                                  type="number"
+                                  v-model="
+                                    xmlForm[currentEditField.id].maxRange
+                                  "
+                                  @input="
+                                    enforceRangeLimit(
+                                      currentEditField.id,
+                                      'maxRange',
+                                      currentEditField.maxInput,
+                                    )
+                                  "
+                                  min="1"
+                                  :max="'9'.repeat(currentEditField.maxInput)"
+                                  :placeholder="
+                                    'Ej. ' +
+                                    '9'.repeat(
+                                      Math.min(currentEditField.maxInput, 4),
+                                    )
+                                  "
+                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
+                                />
+                              </div>
+
+                              <div class="flex-1 min-w-[100px]">
+                                <label
+                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
+                                  >Modo</label
+                                >
+                                <select
+                                  v-model="xmlForm[currentEditField.id].mode"
+                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none cursor-pointer appearance-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
+                                >
+                                  <option value="random">Aleatorio</option>
+                                  <option value="sequential">Secuencial</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </transition>
+
+                        <transition name="fade">
+                          <div
+                            v-if="currentEditField.id == 2"
+                            class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50"
+                          >
+                            <label
+                              class="flex items-center gap-3 cursor-pointer w-fit select-none"
+                            >
                               <input
-                                type="number"
-                                v-model="xmlForm[currentEditField.id].maxRange"
-                                @input="
-                                  enforceRangeLimit(
-                                    currentEditField.id,
-                                    'maxRange',
-                                    currentEditField.maxInput,
-                                  )
+                                type="checkbox"
+                                v-model="
+                                  xmlForm[currentEditField.id].usePanList
                                 "
-                                min="1"
-                                :max="'9'.repeat(currentEditField.maxInput)"
-                                :placeholder="
-                                  'Ej. ' +
-                                  '9'.repeat(
-                                    Math.min(currentEditField.maxInput, 4),
-                                  )
+                                @change="
+                                  initPanList(currentEditField.id);
+                                  if (xmlForm[currentEditField.id].usePanList) {
+                                    xmlForm[currentEditField.id].useRange =
+                                      false;
+                                    xmlForm[currentEditField.id].minRange = '';
+                                    xmlForm[currentEditField.id].maxRange = '';
+                                  }
                                 "
-                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
-                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
-                                "
+                                class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 dark:focus:ring-emerald-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer accent-emerald-500"
                               />
-                            </div>
+                              <span
+                                class="text-[10px] font-bold uppercase tracking-widest transition-colors text-gray-500 dark:text-gray-400"
+                                :class="{
+                                  'text-emerald-600 dark:text-emerald-400':
+                                    xmlForm[currentEditField.id].usePanList,
+                                }"
+                              >
+                                Usar Lista
+                              </span>
+                            </label>
 
-                            <div class="flex-1 min-w-[100px]">
-                              <label
-                                class="text-[10px] font-bold uppercase tracking-widest block mb-1"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'text-purple-600 dark:text-purple-400'
-                                    : 'text-gray-500 dark:text-gray-400'
-                                "
-                                >Modo</label
-                              >
-                              <select
-                                v-model="xmlForm[currentEditField.id].mode"
-                                class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none cursor-pointer appearance-none transition-colors"
-                                :class="
-                                  xmlForm[currentEditField.id].synthetic
-                                    ? 'border-purple-200 dark:border-purple-700 focus:border-purple-500'
-                                    : 'border-gray-200 dark:border-slate-600 focus:border-cyan-500'
-                                "
-                              >
-                                <option value="random">Aleatorio</option>
-                                <option value="sequential">Secuencial</option>
-                              </select>
+                            <div
+                              v-if="xmlForm[currentEditField.id].usePanList"
+                              class="flex flex-col gap-3 mt-2 animate-fade-in"
+                            >
+                              <div class="flex gap-2">
+                                <input
+                                  type="text"
+                                  v-model="newPanInput"
+                                  :maxlength="currentEditField.maxInput"
+                                  @keyup.enter="
+                                    addPanToList(currentEditField.id)
+                                  "
+                                  placeholder="Escribe un PAN y presiona Enter..."
+                                  class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 dark:border-emerald-800/50 focus:border-emerald-500"
+                                />
+                                <button
+                                  @click="addPanToList(currentEditField.id)"
+                                  class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors"
+                                >
+                                  Añadir
+                                </button>
+                              </div>
+
+                              <div class="flex flex-wrap gap-2">
+                                <span
+                                  v-if="
+                                    !xmlForm[currentEditField.id].panList
+                                      ?.length
+                                  "
+                                  class="text-[10px] text-emerald-600/50 dark:text-emerald-400/50 italic"
+                                >
+                                  No hay tarjetas en la lista.
+                                </span>
+                                <span
+                                  v-for="(pan, index) in xmlForm[
+                                    currentEditField.id
+                                  ].panList"
+                                  :key="index"
+                                  class="text-[10px] font-mono font-bold bg-white dark:bg-black border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md flex items-center gap-2 shadow-sm"
+                                >
+                                  {{ pan }}
+                                  <button
+                                    @click="
+                                      removePanFromList(
+                                        currentEditField.id,
+                                        index,
+                                      )
+                                    "
+                                    class="text-red-400 hover:text-red-600 text-sm leading-none"
+                                  >
+                                    &times;
+                                  </button>
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </transition>
@@ -607,6 +704,7 @@
                                   : "Activar Sintético"
                               }}
                             </button>
+
                             <button
                               @click="deactivateField(currentEditField.id)"
                               class="px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-[10px] font-bold uppercase tracking-widest border-2 border-transparent hover:border-red-200 dark:hover:border-red-800"
@@ -614,6 +712,7 @@
                               Apagar Campo
                             </button>
                           </div>
+
                           <div
                             class="flex flex-col sm:items-end gap-1 text-left sm:text-right"
                           >
@@ -942,7 +1041,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import axios from "axios";
 import ContentTpl from "@/layouts/ContentTpl.vue";
 
@@ -966,6 +1065,32 @@ const enforceRangeLimit = (fieldId, type, maxLength) => {
     if (strVal.length > maxLength) {
       xmlForm.value[fieldId][type] = Number(strVal.slice(0, maxLength));
     }
+  }
+};
+
+// --- LÓGICA PARA LA LISTA DE PANs (Campo 2) ---
+const newPanInput = ref("");
+
+const initPanList = (id) => {
+  if (xmlForm.value[id].usePanList && !xmlForm.value[id].panList) {
+    xmlForm.value[id].panList = [];
+  }
+};
+
+const addPanToList = (id) => {
+  const pan = newPanInput.value.trim();
+  if (pan) {
+    if (!xmlForm.value[id].panList) xmlForm.value[id].panList = [];
+    if (!xmlForm.value[id].panList.includes(pan)) {
+      xmlForm.value[id].panList.push(pan);
+    }
+    newPanInput.value = ""; // Limpiar el input después de agregar
+  }
+};
+
+const removePanFromList = (id, index) => {
+  if (xmlForm.value[id].panList) {
+    xmlForm.value[id].panList.splice(index, 1);
   }
 };
 
@@ -1188,6 +1313,9 @@ async function loadXmlFields() {
         minRange: "",
         maxRange: "",
         mode: "random",
+        useRange: false,
+        usePanList: false,
+        panList: [],
       };
     });
     xmlForm.value = initial;
@@ -1410,24 +1538,36 @@ const syncToRaw = async () => {
   isSyncing.value = true;
   try {
     const fields = {};
+    const syntheticFields = [];
+    const syntheticConfig = {};
+
     activeXmlFields.value.forEach((f) => {
       fields[String(f.id)] = xmlForm.value[f.id].value;
-
       let isSynthetic = xmlForm.value[f.id].synthetic;
 
-      if (f.isNum) {
+      if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
         const minVal = parseInt(xmlForm.value[f.id].minRange);
         const maxVal = parseInt(xmlForm.value[f.id].maxRange);
         const modeVal = xmlForm.value[f.id].mode || "random";
 
         if (!isNaN(minVal) && !isNaN(maxVal)) {
-          syntheticConfig[String(f.id)] = {
-            min: minVal,
-            max: maxVal,
-            mode: modeVal,
-          };
+          if (!syntheticConfig[String(f.id)])
+            syntheticConfig[String(f.id)] = {};
+          syntheticConfig[String(f.id)].min = minVal;
+          syntheticConfig[String(f.id)].max = maxVal;
+          syntheticConfig[String(f.id)].mode = modeVal;
           isSynthetic = true;
         }
+      }
+
+      if (
+        String(f.id) === "2" &&
+        xmlForm.value[f.id].usePanList &&
+        xmlForm.value[f.id].panList?.length > 0
+      ) {
+        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+        syntheticConfig[String(f.id)].panList = xmlForm.value[f.id].panList;
+        isSynthetic = true;
       }
 
       if (isSynthetic) {
@@ -1473,22 +1613,30 @@ const handleDispatch = async () => {
 
   activeXmlFields.value.forEach((f) => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
-
     let isSynthetic = xmlForm.value[f.id].synthetic;
 
-    if (f.isNum) {
+    if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
       const minVal = parseInt(xmlForm.value[f.id].minRange);
       const maxVal = parseInt(xmlForm.value[f.id].maxRange);
       const modeVal = xmlForm.value[f.id].mode || "random";
 
       if (!isNaN(minVal) && !isNaN(maxVal)) {
-        syntheticConfig[String(f.id)] = {
-          min: minVal,
-          max: maxVal,
-          mode: modeVal,
-        };
+        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+        syntheticConfig[String(f.id)].min = minVal;
+        syntheticConfig[String(f.id)].max = maxVal;
+        syntheticConfig[String(f.id)].mode = modeVal;
         isSynthetic = true;
       }
+    }
+
+    if (
+      String(f.id) === "2" &&
+      xmlForm.value[f.id].usePanList &&
+      xmlForm.value[f.id].panList?.length > 0
+    ) {
+      if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+      syntheticConfig[String(f.id)].panList = xmlForm.value[f.id].panList;
+      isSynthetic = true;
     }
 
     if (isSynthetic) {
@@ -1552,7 +1700,7 @@ const handleDispatch = async () => {
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
-  transform: transactiveXmllateY(-10px);
+  transform: translateY(-10px);
   max-height: 0;
 }
 .slide-down-enter-to,
