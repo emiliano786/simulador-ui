@@ -576,7 +576,11 @@
 
                         <transition name="fade">
                           <div
-                            v-if="currentEditField.id == 2"
+                            v-if="
+                              [2, 4, 12, 18, 38, 41, 45, 49].includes(
+                                currentEditField.id,
+                              )
+                            "
                             class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50"
                           >
                             <label
@@ -585,47 +589,51 @@
                               <input
                                 type="checkbox"
                                 v-model="
-                                  xmlForm[currentEditField.id].usePanList
+                                  xmlForm[currentEditField.id].useValueList
                                 "
                                 @change="
-                                  initPanList(currentEditField.id);
-                                  if (xmlForm[currentEditField.id].usePanList) {
+                                  initValueList(currentEditField.id);
+                                  if (
+                                    xmlForm[currentEditField.id].useValueList
+                                  ) {
                                     xmlForm[currentEditField.id].useRange =
                                       false;
-                                    xmlForm[currentEditField.id].minRange = '';
-                                    xmlForm[currentEditField.id].maxRange = '';
                                   }
                                 "
-                                class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 dark:focus:ring-emerald-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer accent-emerald-500"
+                                class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer accent-emerald-500"
                               />
                               <span
                                 class="text-[10px] font-bold uppercase tracking-widest transition-colors text-gray-500 dark:text-gray-400"
                                 :class="{
                                   'text-emerald-600 dark:text-emerald-400':
-                                    xmlForm[currentEditField.id].usePanList,
+                                    xmlForm[currentEditField.id].useValueList,
                                 }"
                               >
-                                Usar Lista
+                                Usar Pool de valores específicos
                               </span>
                             </label>
 
                             <div
-                              v-if="xmlForm[currentEditField.id].usePanList"
+                              v-if="xmlForm[currentEditField.id].useValueList"
                               class="flex flex-col gap-3 mt-2 animate-fade-in"
                             >
                               <div class="flex gap-2">
                                 <input
                                   type="text"
-                                  v-model="newPanInput"
+                                  v-model="newValueInput"
                                   :maxlength="currentEditField.maxInput"
                                   @keyup.enter="
-                                    addPanToList(currentEditField.id)
+                                    addValueToList(currentEditField.id)
                                   "
-                                  placeholder="Escribe un PAN y presiona Enter..."
-                                  class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 dark:border-emerald-800/50 focus:border-emerald-500"
+                                  :placeholder="
+                                    'Añadir valor para el campo ' +
+                                    currentEditField.id +
+                                    '...'
+                                  "
+                                  class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 focus:border-emerald-500"
                                 />
                                 <button
-                                  @click="addPanToList(currentEditField.id)"
+                                  @click="addValueToList(currentEditField.id)"
                                   class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors"
                                 >
                                   Añadir
@@ -635,29 +643,29 @@
                               <div class="flex flex-wrap gap-2">
                                 <span
                                   v-if="
-                                    !xmlForm[currentEditField.id].panList
+                                    !xmlForm[currentEditField.id].valueList
                                       ?.length
                                   "
-                                  class="text-[10px] text-emerald-600/50 dark:text-emerald-400/50 italic"
+                                  class="text-[10px] text-emerald-600/50 italic"
                                 >
-                                  No hay tarjetas en la lista.
+                                  No hay valores en la lista.
                                 </span>
                                 <span
-                                  v-for="(pan, index) in xmlForm[
+                                  v-for="(val, index) in xmlForm[
                                     currentEditField.id
-                                  ].panList"
+                                  ].valueList"
                                   :key="index"
-                                  class="text-[10px] font-mono font-bold bg-white dark:bg-black border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md flex items-center gap-2 shadow-sm"
+                                  class="text-[10px] font-mono font-bold bg-white dark:bg-black border border-emerald-300 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md flex items-center gap-2 shadow-sm"
                                 >
-                                  {{ pan }}
+                                  {{ val }}
                                   <button
                                     @click="
-                                      removePanFromList(
+                                      removeValueFromList(
                                         currentEditField.id,
                                         index,
                                       )
                                     "
-                                    class="text-red-400 hover:text-red-600 text-sm leading-none"
+                                    class="text-red-400 hover:text-red-600 text-sm"
                                   >
                                     &times;
                                   </button>
@@ -1068,30 +1076,26 @@ const enforceRangeLimit = (fieldId, type, maxLength) => {
   }
 };
 
-// --- LÓGICA PARA LA LISTA DE PANs (Campo 2) ---
-const newPanInput = ref("");
+// --- LÓGICA PARA LA LISTA DE VALORES ---
+const newValueInput = ref("");
 
-const initPanList = (id) => {
-  if (xmlForm.value[id].usePanList && !xmlForm.value[id].panList) {
-    xmlForm.value[id].panList = [];
-  }
+const initValueList = (id) => {
+  if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
 };
 
-const addPanToList = (id) => {
-  const pan = newPanInput.value.trim();
-  if (pan) {
-    if (!xmlForm.value[id].panList) xmlForm.value[id].panList = [];
-    if (!xmlForm.value[id].panList.includes(pan)) {
-      xmlForm.value[id].panList.push(pan);
+const addValueToList = (id) => {
+  const val = newValueInput.value.trim();
+  if (val) {
+    if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
+    if (!xmlForm.value[id].valueList.includes(val)) {
+      xmlForm.value[id].valueList.push(val);
     }
-    newPanInput.value = ""; // Limpiar el input después de agregar
+    newValueInput.value = "";
   }
 };
 
-const removePanFromList = (id, index) => {
-  if (xmlForm.value[id].panList) {
-    xmlForm.value[id].panList.splice(index, 1);
-  }
+const removeValueFromList = (id, index) => {
+  xmlForm.value[id].valueList.splice(index, 1);
 };
 
 onMounted(async () => {
@@ -1415,7 +1419,7 @@ const showQuickEdits = ref(false);
 
 const quickEditFields = computed(() => {
   if (!rawPreview.value || !rawPreview.value.active_fields) return [];
-  const targetIds = [2, 4, 7, 12, 13, 18, 19];
+  const targetIds = [2, 4, 7, 12, 13, 18, 19, 38, 41, 45, 49];
   return xmlFields.value.filter(
     (f) =>
       targetIds.includes(f.id) && rawPreview.value.active_fields.includes(f.id),
@@ -1615,27 +1619,32 @@ const handleDispatch = async () => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
     let isSynthetic = xmlForm.value[f.id].synthetic;
 
-    if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
-      const minVal = parseInt(xmlForm.value[f.id].minRange);
-      const maxVal = parseInt(xmlForm.value[f.id].maxRange);
-      const modeVal = xmlForm.value[f.id].mode || "random";
-
-      if (!isNaN(minVal) && !isNaN(maxVal)) {
-        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
-        syntheticConfig[String(f.id)].min = minVal;
-        syntheticConfig[String(f.id)].max = maxVal;
-        syntheticConfig[String(f.id)].mode = modeVal;
-        isSynthetic = true;
-      }
-    }
-
     if (
-      String(f.id) === "2" &&
-      xmlForm.value[f.id].usePanList &&
-      xmlForm.value[f.id].panList?.length > 0
+      xmlForm.value[f.id].useValueList &&
+      xmlForm.value[f.id].valueList?.length > 0
     ) {
       if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
-      syntheticConfig[String(f.id)].panList = xmlForm.value[f.id].panList;
+      syntheticConfig[String(f.id)].valueList = xmlForm.value[f.id].valueList;
+      isSynthetic = true;
+    } else if (
+      (f.isNum || [2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
+      xmlForm.value[f.id].useRange
+    ) {
+      if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
+        const minVal = parseInt(xmlForm.value[f.id].minRange);
+        const maxVal = parseInt(xmlForm.value[f.id].maxRange);
+        const modeVal = xmlForm.value[f.id].mode || "random";
+
+        if (!isNaN(minVal) && !isNaN(maxVal)) {
+          if (!syntheticConfig[String(f.id)])
+            syntheticConfig[String(f.id)] = {};
+          syntheticConfig[String(f.id)].min = minVal;
+          syntheticConfig[String(f.id)].max = maxVal;
+          syntheticConfig[String(f.id)].mode = modeVal;
+          isSynthetic = true;
+        }
+      }
+
       isSynthetic = true;
     }
 
