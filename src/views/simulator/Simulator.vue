@@ -183,6 +183,7 @@
                       Extraídos
                     </span>
                   </div>
+
                   <div class="flex items-center gap-3">
                     <label
                       class="text-[10px] font-bold uppercase text-gray-400 tracking-widest"
@@ -191,14 +192,14 @@
                     <input
                       v-model="xmlMti"
                       maxlength="4"
-                      class="w-24 px-3 py-2 text-sm font-mono font-bold bg-white dark:bg-black border border-cyan-200 dark:border-cyan-900/50 rounded-lg text-cyan-600 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-center"
+                      class="w-20 px-3 py-2 text-sm font-mono font-bold bg-white dark:bg-black border border-cyan-200 dark:border-cyan-900/50 rounded-lg text-cyan-600 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-center"
                       placeholder="1100"
                     />
 
                     <button
                       @click="syncToRaw"
                       :disabled="isSyncing || activeXmlFields.length === 0"
-                      class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="ml-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         v-if="!isSyncing"
@@ -219,7 +220,7 @@
                         v-else
                         class="animate-spin w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full"
                       ></div>
-                      Sincronizar Raw
+                      <span class="hidden sm:inline">Sincronizar Raw</span>
                     </button>
                   </div>
                 </div>
@@ -468,7 +469,10 @@
                         <transition name="fade">
                           <div
                             v-if="
-                              currentEditField.isNum || currentEditField.id == 2
+                              currentEditField.isNum ||
+                              [2, 4, 12, 18, 38, 41, 45, 49].includes(
+                                currentEditField.id,
+                              )
                             "
                             class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700"
                           >
@@ -483,7 +487,7 @@
                                     xmlForm[currentEditField.id].minRange = '';
                                     xmlForm[currentEditField.id].maxRange = '';
                                   } else {
-                                    xmlForm[currentEditField.id].usePanList =
+                                    xmlForm[currentEditField.id].useValueList =
                                       false;
                                   }
                                 "
@@ -577,7 +581,7 @@
                         <transition name="fade">
                           <div
                             v-if="
-                              [2, 4, 12, 18, 38, 41, 45, 49].includes(
+                              [1, 2, 4, 12, 18, 38, 41, 45, 49].includes(
                                 currentEditField.id,
                               )
                             "
@@ -598,9 +602,11 @@
                                   ) {
                                     xmlForm[currentEditField.id].useRange =
                                       false;
+                                    xmlForm[currentEditField.id].minRange = '';
+                                    xmlForm[currentEditField.id].maxRange = '';
                                   }
                                 "
-                                class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer accent-emerald-500"
+                                class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 dark:focus:ring-emerald-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer accent-emerald-500"
                               />
                               <span
                                 class="text-[10px] font-bold uppercase tracking-widest transition-colors text-gray-500 dark:text-gray-400"
@@ -626,11 +632,11 @@
                                     addValueToList(currentEditField.id)
                                   "
                                   :placeholder="
-                                    'Añadir valor para el campo ' +
+                                    'Añadir valor para F' +
                                     currentEditField.id +
                                     '...'
                                   "
-                                  class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 focus:border-emerald-500"
+                                  class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 dark:border-emerald-800/50 focus:border-emerald-500"
                                 />
                                 <button
                                   @click="addValueToList(currentEditField.id)"
@@ -646,7 +652,7 @@
                                     !xmlForm[currentEditField.id].valueList
                                       ?.length
                                   "
-                                  class="text-[10px] text-emerald-600/50 italic"
+                                  class="text-[10px] text-emerald-600/50 dark:text-emerald-400/50 italic"
                                 >
                                   No hay valores en la lista.
                                 </span>
@@ -655,7 +661,7 @@
                                     currentEditField.id
                                   ].valueList"
                                   :key="index"
-                                  class="text-[10px] font-mono font-bold bg-white dark:bg-black border border-emerald-300 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md flex items-center gap-2 shadow-sm"
+                                  class="text-[10px] font-mono font-bold bg-white dark:bg-black border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded-md flex items-center gap-2 shadow-sm"
                                 >
                                   {{ val }}
                                   <button
@@ -665,7 +671,7 @@
                                         index,
                                       )
                                     "
-                                    class="text-red-400 hover:text-red-600 text-sm"
+                                    class="text-red-400 hover:text-red-600 text-sm leading-none"
                                   >
                                     &times;
                                   </button>
@@ -799,7 +805,8 @@
                           <p
                             class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5"
                           >
-                            Edita PAN, Monto, Fechas, MCC y País
+                            Edita PAN, Monto, Hora, MCC, Autorización,
+                            Afiliación, Track 1 y Moneda
                           </p>
                         </div>
                       </div>
@@ -953,7 +960,7 @@
                   v-if="isLoading"
                   class="animate-spin border-2 border-white/30 border-t-white rounded-full w-4 h-4"
                 ></span>
-                <span>Enviar ({{ activeXmlFields.length }} campos)</span>
+                <span>Enviar ({{ activeXmlFields.length }}) campos</span>
               </button>
             </div>
           </div>
@@ -1095,7 +1102,9 @@ const addValueToList = (id) => {
 };
 
 const removeValueFromList = (id, index) => {
-  xmlForm.value[id].valueList.splice(index, 1);
+  if (xmlForm.value[id].valueList) {
+    xmlForm.value[id].valueList.splice(index, 1);
+  }
 };
 
 onMounted(async () => {
@@ -1281,20 +1290,28 @@ async function loadXmlFields() {
     const { data } = await axios.get("http://localhost:8080/xml-fields");
 
     xmlFields.value = data
-      .filter((f) => f.id !== 0 && f.id !== 1)
+      .filter((f) => f.id !== 0) // Dejamos pasar al F1
       .sort((a, b) => a.id - b.id)
       .map((f) => {
-        const type = parseTypeKey(f.class);
-        const meta = TYPE_META[type] ?? {
+        let type = parseTypeKey(f.class);
+        let meta = TYPE_META[type] ?? {
           short: type,
           color: "bg-gray-100 text-gray-500",
           isVar: false,
           isNum: false,
           isBin: false,
         };
+
+        if (f.id === 1) {
+          meta.short = "BIN";
+          meta.isBin = true;
+          meta.isNum = false;
+          meta.isVar = false;
+        }
+
         return {
           id: f.id,
-          name: f.name.trim(),
+          name: f.id === 1 ? "BITMAP" : f.name.trim(),
           length: f.length,
           type,
           typeShort: meta.short,
@@ -1318,8 +1335,8 @@ async function loadXmlFields() {
         maxRange: "",
         mode: "random",
         useRange: false,
-        usePanList: false,
-        panList: [],
+        useValueList: false,
+        valueList: [],
       };
     });
     xmlForm.value = initial;
@@ -1340,6 +1357,47 @@ function hexToBin(hex) {
 const rawPreview = ref(null);
 let parseTimeout = null;
 let skipNextParse = false;
+
+// --- CÁLCULO EN TIEMPO REAL DEL BITMAP ---
+const activeXmlFields = computed(() =>
+  xmlFields.value.filter((f) => xmlForm.value[f.id]?.active),
+);
+
+const xmlBitmap = computed(() => {
+  let bin = Array(128).fill("0");
+  let hasSecondary = false;
+
+  activeXmlFields.value
+    .filter((f) => f.id > 1)
+    .forEach((f) => {
+      if (f.id > 64) hasSecondary = true;
+      bin[f.id - 1] = "1";
+    });
+
+  if (hasSecondary) bin[0] = "1";
+
+  let hex = "";
+  const limit = hasSecondary ? 128 : 64;
+  for (let i = 0; i < limit; i += 4) {
+    let nibble = bin.slice(i, i + 4).join("");
+    hex += parseInt(nibble, 2).toString(16).toUpperCase();
+  }
+  return hex || "0000000000000000";
+});
+
+watch(
+  xmlBitmap,
+  (newHex) => {
+    if (xmlForm.value[1]) {
+      xmlForm.value[1].value = newHex;
+      const shouldBeActive = newHex !== "0000000000000000";
+      if (xmlForm.value[1].active !== shouldBeActive) {
+        xmlForm.value[1].active = shouldBeActive;
+      }
+    }
+  },
+  { immediate: true },
+);
 
 watch(rawString, (newVal) => {
   clearTimeout(parseTimeout);
@@ -1368,8 +1426,10 @@ watch(rawString, (newVal) => {
       xmlMti.value = data.mti || "0000";
 
       Object.keys(xmlForm.value).forEach((k) => {
-        xmlForm.value[k].active = false;
-        xmlForm.value[k].value = "";
+        if (k != 1) {
+          xmlForm.value[k].active = false;
+          xmlForm.value[k].value = "";
+        }
       });
 
       Object.entries(data.fields).forEach(([fid, val]) => {
@@ -1401,7 +1461,9 @@ watch(rawString, (newVal) => {
       xmlMti.value = mti;
 
       Object.keys(xmlForm.value).forEach((k) => {
-        xmlForm.value[k].active = active_fields.includes(parseInt(k));
+        if (k != 1) {
+          xmlForm.value[k].active = active_fields.includes(parseInt(k));
+        }
       });
     }
   }, 400);
@@ -1409,8 +1471,8 @@ watch(rawString, (newVal) => {
 
 const filteredXmlFields = computed(() => {
   if (!rawPreview.value || !rawPreview.value.active_fields) return [];
-  return xmlFields.value.filter((f) =>
-    rawPreview.value.active_fields.includes(f.id),
+  return xmlFields.value.filter(
+    (f) => f.id === 1 || rawPreview.value.active_fields.includes(f.id),
   );
 });
 
@@ -1419,10 +1481,11 @@ const showQuickEdits = ref(false);
 
 const quickEditFields = computed(() => {
   if (!rawPreview.value || !rawPreview.value.active_fields) return [];
-  const targetIds = [2, 4, 7, 12, 13, 18, 19, 38, 41, 45, 49];
+  const targetIds = [2, 4, 12, 18, 38, 41, 45, 49];
   return xmlFields.value.filter(
     (f) =>
-      targetIds.includes(f.id) && rawPreview.value.active_fields.includes(f.id),
+      targetIds.includes(f.id) &&
+      (f.id === 1 || rawPreview.value.active_fields.includes(f.id)),
   );
 });
 
@@ -1483,10 +1546,6 @@ function isFieldValid(field, value) {
   return true;
 }
 
-const activeXmlFields = computed(() =>
-  xmlFields.value.filter((f) => xmlForm.value[f.id]?.active),
-);
-
 const isFormValid = computed(() => {
   if (!/^\d{4}$/.test(xmlMti.value)) return false;
   if (activeXmlFields.value.length === 0) return false;
@@ -1516,8 +1575,10 @@ const fillSyntheticRaw = async () => {
         xmlMti.value = data.mti;
 
         Object.keys(xmlForm.value).forEach((k) => {
-          xmlForm.value[k].active = false;
-          xmlForm.value[k].value = "";
+          if (k != 1) {
+            xmlForm.value[k].active = false;
+            xmlForm.value[k].value = "";
+          }
         });
 
         Object.entries(data.parsed_fields).forEach(([fid, val]) => {
@@ -1549,7 +1610,20 @@ const syncToRaw = async () => {
       fields[String(f.id)] = xmlForm.value[f.id].value;
       let isSynthetic = xmlForm.value[f.id].synthetic;
 
-      if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
+      // 1. Lógica de Pool de Valores
+      if (
+        xmlForm.value[f.id].useValueList &&
+        xmlForm.value[f.id].valueList?.length > 0
+      ) {
+        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+        syntheticConfig[String(f.id)].valueList = xmlForm.value[f.id].valueList;
+        isSynthetic = true;
+      }
+      // 2. Lógica de Rangos Matemáticos
+      else if (
+        (f.isNum || [1, 2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
+        xmlForm.value[f.id].useRange
+      ) {
         const minVal = parseInt(xmlForm.value[f.id].minRange);
         const maxVal = parseInt(xmlForm.value[f.id].maxRange);
         const modeVal = xmlForm.value[f.id].mode || "random";
@@ -1562,16 +1636,6 @@ const syncToRaw = async () => {
           syntheticConfig[String(f.id)].mode = modeVal;
           isSynthetic = true;
         }
-      }
-
-      if (
-        String(f.id) === "2" &&
-        xmlForm.value[f.id].usePanList &&
-        xmlForm.value[f.id].panList?.length > 0
-      ) {
-        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
-        syntheticConfig[String(f.id)].panList = xmlForm.value[f.id].panList;
-        isSynthetic = true;
       }
 
       if (isSynthetic) {
@@ -1619,6 +1683,7 @@ const handleDispatch = async () => {
     fields[String(f.id)] = xmlForm.value[f.id].value;
     let isSynthetic = xmlForm.value[f.id].synthetic;
 
+    // 1. Lógica de Pool de Valores
     if (
       xmlForm.value[f.id].useValueList &&
       xmlForm.value[f.id].valueList?.length > 0
@@ -1626,26 +1691,23 @@ const handleDispatch = async () => {
       if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
       syntheticConfig[String(f.id)].valueList = xmlForm.value[f.id].valueList;
       isSynthetic = true;
-    } else if (
-      (f.isNum || [2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
+    }
+    // 2. Lógica de Rangos Matemáticos
+    else if (
+      (f.isNum || [1, 2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
       xmlForm.value[f.id].useRange
     ) {
-      if ((f.isNum || String(f.id) === "2") && xmlForm.value[f.id].useRange) {
-        const minVal = parseInt(xmlForm.value[f.id].minRange);
-        const maxVal = parseInt(xmlForm.value[f.id].maxRange);
-        const modeVal = xmlForm.value[f.id].mode || "random";
+      const minVal = parseInt(xmlForm.value[f.id].minRange);
+      const maxVal = parseInt(xmlForm.value[f.id].maxRange);
+      const modeVal = xmlForm.value[f.id].mode || "random";
 
-        if (!isNaN(minVal) && !isNaN(maxVal)) {
-          if (!syntheticConfig[String(f.id)])
-            syntheticConfig[String(f.id)] = {};
-          syntheticConfig[String(f.id)].min = minVal;
-          syntheticConfig[String(f.id)].max = maxVal;
-          syntheticConfig[String(f.id)].mode = modeVal;
-          isSynthetic = true;
-        }
+      if (!isNaN(minVal) && !isNaN(maxVal)) {
+        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+        syntheticConfig[String(f.id)].min = minVal;
+        syntheticConfig[String(f.id)].max = maxVal;
+        syntheticConfig[String(f.id)].mode = modeVal;
+        isSynthetic = true;
       }
-
-      isSynthetic = true;
     }
 
     if (isSynthetic) {
