@@ -543,33 +543,6 @@
                       class="w-36 sm:w-64 px-3 py-2 text-xs font-mono font-bold bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-800 rounded-lg text-gray-400 dark:text-gray-500 shadow-inner outline-none truncate select-all cursor-not-allowed"
                       title="Bitmap Hexadecimal (Auto-calculado)"
                     />
-
-                    <button
-                      @click="syncToRaw"
-                      :disabled="isSyncing || activeXmlFields.length === 0"
-                      class="ml-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <svg
-                        v-if="!isSyncing"
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="w-3 h-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                      <div
-                        v-else
-                        class="animate-spin w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full"
-                      ></div>
-                      <span class="hidden sm:inline">Sincronizar</span>
-                    </button>
                   </div>
                 </div>
 
@@ -1726,64 +1699,69 @@ watch(rawString, (newVal) => {
     });
     return;
   }
-
   parseTimeout = setTimeout(async () => {
+    isParsingFromServer.value = true;
     try {
       const { data } = await axios.post("http://localhost:8080/api/parse", {
         raw_string: s,
       });
-      rawPreview.value = data;
-      xmlMti.value = data.mti || "0000";
-
-      Object.keys(xmlForm.value).forEach((k) => {
-        if (k != 1) {
-          xmlForm.value[k].active = false;
-          xmlForm.value[k].value = "";
-        }
-      });
-
-      Object.entries(data.fields).forEach(([fid, val]) => {
-        if (xmlForm.value[fid]) {
-          xmlForm.value[fid].active = true;
-          xmlForm.value[fid].value = val;
-        }
-      });
-    } catch (err) {
-      console.warn(
-        "Fallo el parser del servidor, extrayendo solo Bitmap localmente.",
-      );
-
-      const mti = s.slice(0, 4);
-      const bitmapHex1 = s.slice(4, 20);
-      let active_fields = [];
       try {
-        let bin1 = hexToBin(bitmapHex1);
-        for (let i = 1; i < 64; i++)
-          if (bin1[i] === "1") active_fields.push(i + 1);
-        if (bin1[0] === "1" && s.length >= 36) {
-          let bin2 = hexToBin(s.slice(20, 36));
-          for (let i = 0; i < 64; i++)
-            if (bin2[i] === "1") active_fields.push(i + 65);
-        }
-      } catch (e) {}
+        const { data } = await axios.post("http://localhost:8080/api/parse", {
+          raw_string: s,
+        });
+        rawPreview.value = data;
+        xmlMti.value = data.mti || "0000";
 
-      rawPreview.value = { mti, active_fields };
-      xmlMti.value = mti;
+        Object.keys(xmlForm.value).forEach((k) => {
+          if (k != 1) {
+            xmlForm.value[k].active = false;
+          }
+        });
 
-      Object.keys(xmlForm.value).forEach((k) => {
-        if (k != 1) {
-          xmlForm.value[k].active = active_fields.includes(parseInt(k));
-        }
+        Object.entries(data.fields).forEach(([fid, val]) => {
+          if (xmlForm.value[fid]) {
+            xmlForm.value[fid].active = true;
+            xmlForm.value[fid].value = val;
+          }
+        });
+      } catch (err) {
+        console.warn(
+          "Fallo el parser del servidor, extrayendo solo Bitmap localmente.",
+        );
+
+        const mti = s.slice(0, 4);
+        const bitmapHex1 = s.slice(4, 20);
+        let active_fields = [];
+        try {
+          let bin1 = hexToBin(bitmapHex1);
+          for (let i = 1; i < 64; i++)
+            if (bin1[i] === "1") active_fields.push(i + 1);
+          if (bin1[0] === "1" && s.length >= 36) {
+            let bin2 = hexToBin(s.slice(20, 36));
+            for (let i = 0; i < 64; i++)
+              if (bin2[i] === "1") active_fields.push(i + 65);
+          }
+        } catch (e) {}
+
+        rawPreview.value = { mti, active_fields };
+        xmlMti.value = mti;
+
+        Object.keys(xmlForm.value).forEach((k) => {
+          if (k != 1) {
+            xmlForm.value[k].active = active_fields.includes(parseInt(k));
+          }
+        });
+      }
+    } finally {
+      nextTick(() => {
+        isParsingFromServer.value = false;
       });
     }
   }, 400);
 });
 
 const filteredXmlFields = computed(() => {
-  if (!rawPreview.value || !rawPreview.value.active_fields) return [];
-  return xmlFields.value.filter(
-    (f) => f.id === 1 || rawPreview.value.active_fields.includes(f.id),
-  );
+  return xmlFields.value;
 });
 
 const quickEditFields = computed(() => {
@@ -2067,6 +2045,30 @@ const fillSyntheticRaw = async () => {
 };
 
 const isSyncing = ref(false);
+
+// --- LÓGICA DE AUTO-SYNC ---
+const autoSync = ref(true); // Encendido por defecto
+const isParsingFromServer = ref(false); // Seguro contra bucles infinitos
+let autoSyncTimeout = null;
+
+watch(
+  [xmlForm, xmlMti],
+  () => {
+    if (
+      !autoSync.value ||
+      !rawPreview.value ||
+      isParsingFromServer.value ||
+      isSyncing.value
+    )
+      return;
+
+    clearTimeout(autoSyncTimeout);
+    autoSyncTimeout = setTimeout(() => {
+      syncToRaw();
+    }, 800);
+  },
+  { deep: true },
+);
 
 const syncToRaw = async () => {
   isSyncing.value = true;
