@@ -631,11 +631,7 @@
                                   @keyup.enter="
                                     addValueToList(currentEditField.id)
                                   "
-                                  :placeholder="
-                                    'Añadir valor para F' +
-                                    currentEditField.id +
-                                    '...'
-                                  "
+                                  :placeholder="'Añadir valor al pool'"
                                   class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-emerald-200 dark:border-emerald-800/50 focus:border-emerald-500"
                                 />
                                 <button
@@ -805,8 +801,7 @@
                           <p
                             class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5"
                           >
-                            Edita PAN, Monto, Hora, MCC, Autorización,
-                            Afiliación, Track 1 y Moneda
+                            Edita Campos rapidamente
                           </p>
                         </div>
                       </div>
@@ -944,6 +939,146 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </transition>
+
+            <transition name="slide-down">
+              <div
+                v-if="rawPreview"
+                class="mt-4 bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-all"
+              >
+                <button
+                  @click="showTemplates = !showTemplates"
+                  class="w-full px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-slate-900/30 hover:bg-gray-100 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                        />
+                      </svg>
+                    </div>
+                    <div class="text-left">
+                      <h3
+                        class="text-xs font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200"
+                      >
+                        Plantillas de Ajustes
+                      </h3>
+                      <p
+                        class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5"
+                      >
+                        Guarda y carga tus configuraciones
+                      </p>
+                    </div>
+                  </div>
+                  <svg
+                    class="w-5 h-5 text-gray-400 transition-transform duration-300"
+                    :class="showTemplates ? 'rotate-180' : ''"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+
+                <transition name="slide-down">
+                  <div
+                    v-if="showTemplates"
+                    class="p-6 border-t border-gray-100 dark:border-slate-800 bg-indigo-50/5 dark:bg-indigo-900/5"
+                  >
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div class="flex flex-col gap-3">
+                        <label
+                          class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          >Guardar Actual</label
+                        >
+                        <div class="flex gap-2">
+                          <input
+                            v-model="newConfigName"
+                            type="text"
+                            placeholder="Nombre de la plantilla"
+                            class="flex-1 text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none border-indigo-200 focus:border-indigo-500"
+                          />
+                          <button
+                            @click="saveConfiguration"
+                            :disabled="
+                              !newConfigName || activeXmlFields.length === 0
+                            "
+                            class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                        <transition name="fade">
+                          <p
+                            v-if="saveStatusMessage"
+                            class="text-[10px] font-bold uppercase tracking-tight"
+                            :class="
+                              saveStatusIsError
+                                ? 'text-red-500'
+                                : 'text-emerald-500'
+                            "
+                          >
+                            {{ saveStatusMessage }}
+                          </p>
+                        </transition>
+                      </div>
+
+                      <div class="flex flex-col gap-3">
+                        <label
+                          class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          >Cargar Plantilla</label
+                        >
+                        <select
+                          @change="loadConfiguration"
+                          class="w-full text-xs font-mono px-3 py-2.5 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none cursor-pointer border-indigo-200 focus:border-indigo-500"
+                        >
+                          <option value="">
+                            -- Selecciona una plantilla --
+                          </option>
+                          <option
+                            v-for="cfg in savedConfigsList"
+                            :key="cfg.name"
+                            :value="cfg.name"
+                          >
+                            {{ cfg.name }}
+                          </option>
+                        </select>
+                        <transition name="fade">
+                          <p
+                            v-if="loadStatusMessage"
+                            class="text-[10px] font-bold uppercase tracking-tight"
+                            :class="
+                              loadStatusIsError
+                                ? 'text-red-500'
+                                : 'text-emerald-500'
+                            "
+                          >
+                            {{ loadStatusMessage }}
+                          </p>
+                        </transition>
+                      </div>
+                    </div>
+                  </div>
+                </transition>
               </div>
             </transition>
 
@@ -1488,6 +1623,174 @@ const quickEditFields = computed(() => {
       (f.id === 1 || rawPreview.value.active_fields.includes(f.id)),
   );
 });
+
+// --- LOGICA MONGODB ---
+const newConfigName = ref("");
+const showTemplates = ref(false);
+const savedConfigsList = ref([]);
+
+const fetchSavedConfigs = async () => {
+  try {
+    const { data } = await axios.get("http://localhost:8080/api/configs");
+    savedConfigsList.value = data.configs || [];
+  } catch (err) {
+    console.error("Error obteniendo configuraciones de Mongo", err);
+  }
+};
+
+onMounted(async () => {
+  await fetchSavedConfigs();
+});
+
+const saveStatusMessage = ref("");
+const saveStatusIsError = ref(false);
+
+const saveConfiguration = async () => {
+  const fieldsToSave = {};
+  const syntheticFields = [];
+  const syntheticConfig = {};
+
+  activeXmlFields.value.forEach((f) => {
+    if (f.id === 1) return;
+
+    fieldsToSave[String(f.id)] = "";
+
+    let isSynthetic = xmlForm.value[f.id].synthetic;
+
+    if (
+      xmlForm.value[f.id].useValueList &&
+      xmlForm.value[f.id].valueList?.length > 0
+    ) {
+      if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+      syntheticConfig[String(f.id)].valueList = xmlForm.value[f.id].valueList;
+      isSynthetic = true;
+    } else if (
+      (f.isNum || [2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
+      xmlForm.value[f.id].useRange
+    ) {
+      if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
+      syntheticConfig[String(f.id)].min = parseInt(
+        xmlForm.value[f.id].minRange,
+      );
+      syntheticConfig[String(f.id)].max = parseInt(
+        xmlForm.value[f.id].maxRange,
+      );
+      syntheticConfig[String(f.id)].mode = xmlForm.value[f.id].mode || "random";
+      isSynthetic = true;
+    }
+
+    if (isSynthetic) syntheticFields.push(String(f.id));
+  });
+
+  try {
+    await axios.post("http://localhost:8080/api/configs", {
+      name: newConfigName.value,
+      mti: xmlMti.value,
+      batch_size: batchSize.value,
+      delay_ms: delayMs.value,
+      fields: fieldsToSave, // Mandamos las llaves vacías
+      synthetic_fields: syntheticFields,
+      synthetic_config: syntheticConfig,
+    });
+
+    saveStatusIsError.value = false;
+    saveStatusMessage.value = "✓ Plantilla guardada correctamente";
+    newConfigName.value = "";
+    await fetchSavedConfigs();
+
+    setTimeout(() => {
+      saveStatusMessage.value = "";
+    }, 3000);
+  } catch (err) {
+    saveStatusIsError.value = true;
+    saveStatusMessage.value = "✕ Error al conectar con MongoDB";
+    setTimeout(() => {
+      saveStatusMessage.value = "";
+    }, 3000);
+  }
+};
+
+const loadStatusMessage = ref("");
+const loadStatusIsError = ref(false);
+
+const loadConfiguration = (event) => {
+  const cfgName = event.target.value;
+  if (!cfgName) return;
+
+  const cfg = savedConfigsList.value.find((c) => c.name === cfgName);
+  if (!cfg) {
+    loadStatusIsError.value = true;
+    loadStatusMessage.value = "✕ Plantilla no encontrada";
+    setTimeout(() => {
+      loadStatusMessage.value = "";
+    }, 3000);
+    return;
+  }
+
+  try {
+    xmlMti.value = cfg.mti;
+    batchSize.value = cfg.batch_size;
+    delayMs.value = cfg.delay_ms;
+
+    Object.keys(xmlForm.value).forEach((k) => {
+      if (k != 1) {
+        xmlForm.value[k].active = false;
+        xmlForm.value[k].synthetic = false;
+        xmlForm.value[k].useRange = false;
+        xmlForm.value[k].useValueList = false;
+      }
+    });
+
+    if (cfg.fields) {
+      Object.keys(cfg.fields).forEach((fid) => {
+        if (xmlForm.value[fid]) {
+          xmlForm.value[fid].active = true;
+        }
+      });
+    }
+
+    if (cfg.synthetic_fields) {
+      cfg.synthetic_fields.forEach((fid) => {
+        if (xmlForm.value[fid]) {
+          xmlForm.value[fid].active = true; // Por si acaso
+          let isPureSynthetic = true;
+
+          if (cfg.synthetic_config && cfg.synthetic_config[fid]) {
+            const configDetails = cfg.synthetic_config[fid];
+
+            if (configDetails.valueList) {
+              xmlForm.value[fid].useValueList = true;
+              xmlForm.value[fid].valueList = [...configDetails.valueList];
+              isPureSynthetic = false;
+            } else if (configDetails.min !== undefined) {
+              xmlForm.value[fid].useRange = true;
+              xmlForm.value[fid].minRange = configDetails.min;
+              xmlForm.value[fid].maxRange = configDetails.max;
+              xmlForm.value[fid].mode = configDetails.mode;
+              isPureSynthetic = false;
+            }
+          }
+
+          xmlForm.value[fid].synthetic = isPureSynthetic;
+        }
+      });
+    }
+
+    loadStatusIsError.value = false;
+    loadStatusMessage.value = "✓ Plantilla cargada exitosamente";
+
+    setTimeout(() => {
+      loadStatusMessage.value = "";
+    }, 3000);
+  } catch (error) {
+    console.error(error);
+    loadStatusIsError.value = true;
+    loadStatusMessage.value = "✕ Error al procesar la plantilla";
+    setTimeout(() => {
+      loadStatusMessage.value = "";
+    }, 3000);
+  }
+};
 
 const handleGridFieldClick = (id) => {
   const fieldData = xmlForm.value[id];
