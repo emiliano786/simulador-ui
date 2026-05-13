@@ -145,9 +145,36 @@
                 <div class="flex flex-col gap-3">
                   <label
                     class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
-                    >Guardar Actual</label
+                    >Guardar Plantilla</label
                   >
                   <div class="flex gap-2">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer select-none w-fit mt-1"
+                    >
+                      <input
+                        type="checkbox"
+                        v-model="saveWithRaw"
+                        :disabled="!rawString"
+                        class="w-3.5 h-3.5 rounded accent-indigo-500 cursor-pointer disabled:opacity-40"
+                      />
+                      <span
+                        class="text-[9px] font-bold uppercase tracking-widest transition-colors"
+                        :class="
+                          saveWithRaw && rawString
+                            ? 'text-indigo-500'
+                            : 'text-gray-400'
+                        "
+                      >
+                        Incluir trama actual
+                      </span>
+                      <span
+                        v-if="rawString && saveWithRaw"
+                        class="text-[8px] font-mono text-gray-400 truncate max-w-[120px]"
+                        :title="rawString"
+                      >
+                        {{ rawString.slice(0, 12) }}…
+                      </span>
+                    </label>
                     <input
                       v-model="newConfigName"
                       type="text"
@@ -1781,6 +1808,7 @@ const saveStatusMessage = ref("");
 const saveStatusIsError = ref(false);
 const loadStatusMessage = ref("");
 const loadStatusIsError = ref(false);
+const saveWithRaw = ref(true);
 
 const fetchSavedConfigs = async () => {
   try {
@@ -1834,6 +1862,7 @@ const saveConfiguration = async () => {
       mti: xmlMti.value,
       batch_size: batchSize.value,
       delay_ms: delayMs.value,
+      raw_string: rawString.value,
       fields: fieldsToSave,
       synthetic_fields: syntheticFields,
       synthetic_config: syntheticConfig,
@@ -1881,6 +1910,12 @@ const loadConfiguration = (event) => {
         xmlForm.value[k].synthetic = false;
         xmlForm.value[k].useRange = false;
         xmlForm.value[k].useValueList = false;
+      }
+
+      if (cfg.raw_string) {
+        skipNextParse = false;
+        rawString.value = cfg.raw_string;
+        showRawString.value = true;
       }
     });
 
