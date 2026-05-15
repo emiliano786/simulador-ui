@@ -439,7 +439,30 @@
                       >{{ field.typeShort }}</span
                     >
                   </div>
+                  
+                  <div v-if="field.id === 4" class="relative w-full">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                    <input
+                      :value="getFormattedAmount(xmlForm[field.id].value)"
+                      @change="setFormattedAmount(field.id, $event.target.value)"
+                      :readonly="field.id == 1"
+                      :maxlength="field.maxInput"
+                      placeholder="0.00"
+                      class="w-full font-mono text-xs pl-7 pr-3 py-2.5 rounded-xl border-2 outline-none transition-all"
+                      :class="[
+                        field.id == 1
+                          ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
+                          : xmlForm[field.id].value &&
+                              !isFieldValid(field, xmlForm[field.id].value) &&
+                              !xmlForm[field.id].synthetic
+                            ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
+                            : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-blue-500',
+                      ]"
+                    />
+                  </div>
+
                   <input
+                    v-else
                     v-model="xmlForm[field.id].value"
                     :readonly="field.id == 1"
                     :maxlength="field.maxInput"
@@ -795,7 +818,37 @@
                       </div>
 
                       <div class="p-6 flex flex-col gap-5">
+                        
+                        <div v-if="currentEditField.id === 4" class="relative w-full">
+                          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
+                          <input
+                            :value="getFormattedAmount(xmlForm[currentEditField.id].value)"
+                            @change="setFormattedAmount(currentEditField.id, $event.target.value)"
+                            :readonly="currentEditField.id == 1"
+                            :maxlength="currentEditField.maxInput"
+                            placeholder="0.00"
+                            class="w-full font-mono text-sm pl-9 pr-4 py-4 rounded-xl border-2 outline-none transition-all"
+                            :class="[
+                              currentEditField.id == 1
+                                ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
+                                : xmlForm[currentEditField.id].synthetic
+                                  ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 placeholder-purple-300 dark:placeholder-purple-800/50 border-purple-300 dark:border-purple-700/50 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.15)]'
+                                  : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700 border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]',
+                              xmlForm[currentEditField.id].value &&
+                              !isFieldValid(
+                                currentEditField,
+                                xmlForm[currentEditField.id].value,
+                              ) &&
+                              !xmlForm[currentEditField.id].synthetic &&
+                              currentEditField.id !== 1
+                                ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
+                                : '',
+                            ]"
+                          />
+                        </div>
+
                         <input
+                          v-else
                           v-model="xmlForm[currentEditField.id].value"
                           :readonly="currentEditField.id == 1"
                           :maxlength="currentEditField.maxInput"
@@ -1381,8 +1434,8 @@ const enforceRangeLimit = (fieldId, type, maxLength) => {
 };
 
 // --- LÓGICA DE LOS ACORDEONES ---
-const showTemplates = ref(false);
-const showRawString = ref(true); // Abierto por defecto para pegar la trama
+const showTemplates = ref(true);
+const showRawString = ref(false); 
 const showQuickEdits = ref(false);
 const showXmlBuilder = ref(false);
 const showSettings = ref(false);
@@ -1410,6 +1463,30 @@ const removeValueFromList = (id, index) => {
     xmlForm.value[id].valueList.splice(index, 1);
   }
 };
+
+// --Formato de monto --
+
+function getFormattedAmount(rawVal) {
+  if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
+  return (Number(rawVal) / 100).toFixed(2);
+}
+
+function setFormattedAmount(fieldId, displayVal) {
+  if (!displayVal) {
+    xmlForm.value[fieldId].value = "";
+    return;
+  }
+  const clean = displayVal.replace(/[^\d.]/g, '');
+  const floatVal = parseFloat(clean);
+  if (!isNaN(floatVal)) {
+    const intVal = Math.round(floatVal * 100);
+    const fieldDef = xmlFields.value.find((f) => f.id === fieldId);
+    const maxLen = fieldDef ? fieldDef.length : 12;
+    xmlForm.value[fieldId].value = String(intVal).padStart(maxLen, '0');
+  } else {
+    xmlForm.value[fieldId].value = displayVal; 
+  }
+}
 
 onMounted(async () => {
   const savedTheme = localStorage.getItem("theme");
@@ -1595,7 +1672,7 @@ async function loadXmlFields() {
     const { data } = await axios.get("http://localhost:8080/xml-fields");
 
     xmlFields.value = data
-      .filter((f) => f.id !== 0) // Dejamos pasar al F1
+      .filter((f) => f.id !== 0)
       .sort((a, b) => a.id - b.id)
       .map((f) => {
         let type = parseTypeKey(f.class);
