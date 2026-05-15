@@ -349,22 +349,11 @@
           >
             <div class="flex items-center gap-4">
               <div
-                class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0"
+                class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+                <span class="material-symbols-outlined text-[20px]">
+                  bolt
+                </span>
               </div>
               <div class="text-left">
                 <h3
@@ -373,7 +362,7 @@
                   Editor rápido
                 </h3>
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
-                  Edita Bitmap, PAN, Monto, Hora, MCC, etc.
+                  Edita campos fijados rapidamente
                 </p>
               </div>
             </div>
@@ -414,9 +403,12 @@
               </div>
               <div
                 v-else-if="quickEditFields.length === 0"
-                class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest py-8"
+                class="flex flex-col items-center justify-center gap-2 py-8"
               >
-                No se detectaron campos principales en esta trama.
+                <span class="material-symbols-outlined text-3xl text-amber-300 dark:text-amber-900/50">push_pin</span>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center">
+                  No has fijado ningún campo.<br/>Ve al "XML Builder" y usa la opción "Fijar Rápido".
+                </p>
               </div>
               <div
                 v-else
@@ -456,7 +448,7 @@
                               !isFieldValid(field, xmlForm[field.id].value) &&
                               !xmlForm[field.id].synthetic
                             ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
-                            : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-blue-500',
+                            : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
                       ]"
                     />
                   </div>
@@ -474,7 +466,7 @@
                             !isFieldValid(field, xmlForm[field.id].value) &&
                             !xmlForm[field.id].synthetic
                           ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
-                          : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-blue-500',
+                          : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
                     ]"
                   />
                 </div>
@@ -645,6 +637,11 @@
                           class="text-purple-500"
                           >— Activar Sintético</span
                         >
+                        <span
+                          v-if="gridTool === 'toggle_quickedit'"
+                          class="text-amber-500"
+                          >— Fijar campos en editor rápido</span
+                        >
                       </span>
                       <span
                         class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 px-2 py-1 rounded"
@@ -668,9 +665,13 @@
                               ? !isFieldValid(field, xmlForm[field.id].value) &&
                                 !xmlForm[field.id].synthetic
                                 ? 'bg-red-50 border-red-400 text-red-600 shadow-[0_0_8px_rgba(248,113,113,0.5)] dark:bg-red-900/30 dark:border-red-600 dark:text-red-400'
-                                : xmlForm[field.id]?.synthetic
-                                  ? 'bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300 hover:bg-purple-100'
-                                  : 'bg-cyan-50 border-cyan-300 text-cyan-700 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-300 hover:bg-cyan-100'
+                                : gridTool === 'toggle_quickedit'
+                                  ? xmlForm[field.id]?.quickEdit
+                                    ? 'bg-amber-400 border-amber-500 text-white shadow-md'
+                                    : 'bg-gray-100 border-gray-300 text-gray-400 dark:bg-slate-800 dark:border-slate-700 opacity-60'
+                                  : xmlForm[field.id]?.synthetic
+                                    ? 'bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300 hover:bg-purple-100'
+                                    : 'bg-cyan-50 border-cyan-300 text-cyan-700 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-300 hover:bg-cyan-100'
                               : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 dark:bg-[#0d1421] dark:border-slate-700',
                         ]"
                         :title="field.name"
@@ -714,7 +715,18 @@
                           "
                           class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
                         >
-                          Activar Sintético
+                          Sintético
+                        </button>
+                        <button
+                          @click="gridTool = 'toggle_quickedit'"
+                          :class="
+                            gridTool === 'toggle_quickedit'
+                              ? 'bg-amber-500 shadow text-white'
+                              : 'text-gray-500 hover:text-amber-600 dark:hover:text-amber-400'
+                          "
+                          class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1"
+                        >
+                          <span class="material-symbols-outlined text-[14px]">push_pin</span> Fijar Editor Rápido
                         </button>
                       </div>
 
@@ -754,6 +766,24 @@
                               class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-gray-500/30 text-gray-500 bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
                             >
                               Ninguno Sintético
+                            </button>
+                          </div>
+                          <div
+                            v-else-if="gridTool === 'toggle_quickedit'"
+                            key="quickedit-tools"
+                            class="flex gap-3"
+                          >
+                            <button
+                              @click="toggleAllFields('quickedit', true)"
+                              class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-amber-500/30 text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+                            >
+                              Fijar Todos
+                            </button>
+                            <button
+                              @click="toggleAllFields('quickedit', false)"
+                              class="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded border border-gray-500/30 text-gray-500 bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
+                            >
+                              Desfijar Todos
                             </button>
                           </div>
                           <div
@@ -1412,6 +1442,8 @@ import ContentTpl from "@/layouts/ContentTpl.vue";
 
 const isDark = ref(false);
 
+const DEFAULT_QUICK_EDITS = [1, 2, 4, 12, 18, 38, 41, 45, 49];
+
 const toggleDarkMode = () => {
   isDark.value = !isDark.value;
   if (isDark.value) {
@@ -1464,8 +1496,9 @@ const removeValueFromList = (id, index) => {
   }
 };
 
-// --Formato de monto --
-
+// ==========================================
+// FORMATO DE MONTO 
+// ==========================================
 function getFormattedAmount(rawVal) {
   if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
   return (Number(rawVal) / 100).toFixed(2);
@@ -1713,6 +1746,7 @@ async function loadXmlFields() {
         active: false,
         value: "",
         synthetic: false,
+        quickEdit: DEFAULT_QUICK_EDITS.includes(f.id),
         minRange: "",
         maxRange: "",
         mode: "random",
@@ -1870,10 +1904,9 @@ const filteredXmlFields = computed(() => {
 
 const quickEditFields = computed(() => {
   if (!rawPreview.value || !rawPreview.value.active_fields) return [];
-  const targetIds = [1, 2, 4, 12, 18, 38, 41, 45, 49];
   return xmlFields.value.filter(
     (f) =>
-      targetIds.includes(f.id) &&
+      xmlForm.value[f.id]?.quickEdit &&
       (f.id === 1 || rawPreview.value.active_fields.includes(f.id)),
   );
 });
@@ -1900,8 +1933,13 @@ const saveConfiguration = async () => {
   const fieldsToSave = {};
   const syntheticFields = [];
   const syntheticConfig = {};
+  const quickEditFieldsList = [];
 
   activeXmlFields.value.forEach((f) => {
+    if (xmlForm.value[f.id].quickEdit) {
+      quickEditFieldsList.push(f.id);
+    }
+
     if (f.id === 1) return;
 
     fieldsToSave[String(f.id)] = "";
@@ -1943,6 +1981,7 @@ const saveConfiguration = async () => {
       fields: fieldsToSave,
       synthetic_fields: syntheticFields,
       synthetic_config: syntheticConfig,
+      quick_edit_fields: quickEditFieldsList,
     });
 
     saveStatusIsError.value = false;
@@ -1981,20 +2020,27 @@ const loadConfiguration = (event) => {
     batchSize.value = cfg.batch_size;
     delayMs.value = cfg.delay_ms;
 
+    const qeList = cfg.quick_edit_fields || DEFAULT_QUICK_EDITS;
+
     Object.keys(xmlForm.value).forEach((k) => {
       if (k != 1) {
         xmlForm.value[k].active = false;
         xmlForm.value[k].synthetic = false;
         xmlForm.value[k].useRange = false;
         xmlForm.value[k].useValueList = false;
-      }
-
-      if (cfg.raw_string) {
-        skipNextParse = false;
-        rawString.value = cfg.raw_string;
-        showRawString.value = true;
+        xmlForm.value[k].quickEdit = false;
       }
     });
+
+    qeList.forEach((fid) => {
+      if (xmlForm.value[fid]) xmlForm.value[fid].quickEdit = true;
+    });
+
+    if (cfg.raw_string) {
+      skipNextParse = false;
+      rawString.value = cfg.raw_string;
+      showRawString.value = true;
+    }
 
     if (cfg.fields) {
       Object.keys(cfg.fields).forEach((fid) => {
@@ -2063,10 +2109,15 @@ const handleGridFieldClick = (id) => {
     fieldData.active = !fieldData.active;
     if (!fieldData.active) {
       fieldData.synthetic = false;
+      fieldData.quickEdit = false;
       if (selectedFieldEdit.value === id) selectedFieldEdit.value = null;
     }
   } else if (gridTool.value === "toggle_synthetic") {
     if (fieldData.active) fieldData.synthetic = !fieldData.synthetic;
+  } else if (gridTool.value === "toggle_quickedit") {
+    if (fieldData.active) {
+      fieldData.quickEdit = !fieldData.quickEdit;
+    }
   }
 };
 
@@ -2080,11 +2131,16 @@ const toggleAllFields = (type, state) => {
       fieldData.active = state;
       if (!state) {
         fieldData.synthetic = false;
+        fieldData.quickEdit = false;
         if (selectedFieldEdit.value === id) selectedFieldEdit.value = null;
       }
     } else if (type === "synthetic") {
       if (fieldData.active || !state) {
         fieldData.synthetic = state;
+      }
+    } else if (type === "quickedit") {
+      if (fieldData.active || !state) {
+        fieldData.quickEdit = state;
       }
     }
   });
@@ -2094,6 +2150,7 @@ const deactivateField = (id) => {
   if (id === 1) return;
   xmlForm.value[id].active = false;
   xmlForm.value[id].synthetic = false;
+  xmlForm.value[id].quickEdit = false;
   selectedFieldEdit.value = null;
 };
 
@@ -2145,6 +2202,7 @@ const fillSyntheticRaw = async () => {
           if (xmlForm.value[fid]) {
             xmlForm.value[fid].active = true;
             xmlForm.value[fid].value = val;
+            xmlForm.value[fid].quickEdit = DEFAULT_QUICK_EDITS.includes(Number(fid));
           }
         });
       }
