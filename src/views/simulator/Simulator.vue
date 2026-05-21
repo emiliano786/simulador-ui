@@ -405,9 +405,15 @@
                 v-else-if="quickEditFields.length === 0"
                 class="flex flex-col items-center justify-center gap-2 py-8"
               >
-                <span class="material-symbols-outlined text-3xl text-amber-300 dark:text-amber-900/50">push_pin</span>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center">
-                  No has fijado ningún campo.<br/>Ve al "XML Builder" y usa la opción "Fijar Rápido".
+                <span
+                  class="material-symbols-outlined text-3xl text-amber-300 dark:text-amber-900/50"
+                  >push_pin</span
+                >
+                <p
+                  class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center"
+                >
+                  No has fijado ningún campo.<br />Ve al "XML Builder" y usa la
+                  opción "Fijar Rápido".
                 </p>
               </div>
               <div
@@ -431,12 +437,17 @@
                       >{{ field.typeShort }}</span
                     >
                   </div>
-                  
+
                   <div v-if="field.id === 4" class="relative w-full">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                    <span
+                      class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold"
+                      >$</span
+                    >
                     <input
                       :value="getFormattedAmount(xmlForm[field.id].value)"
-                      @change="setFormattedAmount(field.id, $event.target.value)"
+                      @change="
+                        setFormattedAmount(field.id, $event.target.value)
+                      "
                       :readonly="field.id == 1"
                       :maxlength="field.maxInput"
                       placeholder="0.00"
@@ -726,7 +737,10 @@
                           "
                           class="px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1"
                         >
-                          <span class="material-symbols-outlined text-[14px]">push_pin</span> Fijar Editor Rápido
+                          <span class="material-symbols-outlined text-[14px]"
+                            >push_pin</span
+                          >
+                          Fijar Editor Rápido
                         </button>
                       </div>
 
@@ -848,12 +862,26 @@
                       </div>
 
                       <div class="p-6 flex flex-col gap-5">
-                        
-                        <div v-if="currentEditField.id === 4" class="relative w-full">
-                          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
+                        <div
+                          v-if="currentEditField.id === 4"
+                          class="relative w-full"
+                        >
+                          <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg"
+                            >$</span
+                          >
                           <input
-                            :value="getFormattedAmount(xmlForm[currentEditField.id].value)"
-                            @change="setFormattedAmount(currentEditField.id, $event.target.value)"
+                            :value="
+                              getFormattedAmount(
+                                xmlForm[currentEditField.id].value,
+                              )
+                            "
+                            @change="
+                              setFormattedAmount(
+                                currentEditField.id,
+                                $event.target.value,
+                              )
+                            "
                             :readonly="currentEditField.id == 1"
                             :maxlength="currentEditField.maxInput"
                             placeholder="0.00"
@@ -1430,6 +1458,49 @@
             </div>
           </div>
         </div>
+        <transition name="toast-drop">
+          <div
+            v-if="toast.show"
+            class="fixed top-8 left-1/2 z-[9999] flex items-center gap-5 w-[90vw] max-w-2xl px-8 py-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] border transition-all"
+            :class="
+              toast.type === 'error'
+                ? 'bg-red-50 border-red-200 border-l-[12px] border-l-red-500 text-red-700 dark:bg-[#2c1015] dark:border-red-900/50 dark:border-l-red-600 dark:text-red-400'
+                : 'bg-emerald-50 border-emerald-200 border-l-[12px] border-l-emerald-500 text-emerald-700 dark:bg-[#122e20] dark:border-emerald-900/50 dark:border-l-emerald-600 dark:text-emerald-400'
+            "
+          >
+            <span
+              class="material-symbols-outlined text-5xl shrink-0"
+              :class="
+                toast.type === 'error'
+                  ? 'text-red-500 dark:text-red-500'
+                  : 'text-emerald-500 dark:text-emerald-500'
+              "
+            >
+              {{ toast.type === "error" ? "error" : "check_circle" }}
+            </span>
+
+            <div class="flex-1 space-y-1.5 pr-4">
+              <p
+                class="text-[10px] font-black uppercase tracking-widest opacity-60"
+              >
+                Notificación del Sistema
+              </p>
+
+              <p
+                class="text-sm font-bold uppercase tracking-widest whitespace-pre-wrap leading-relaxed"
+              >
+                {{ toast.message }}
+              </p>
+            </div>
+
+            <button
+              @click="toast.show = false"
+              class="absolute top-4 right-4 opacity-50 hover:opacity-100 transition-opacity"
+            >
+              <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+          </div>
+        </transition>
       </div>
     </template>
   </content-tpl>
@@ -1467,7 +1538,7 @@ const enforceRangeLimit = (fieldId, type, maxLength) => {
 
 // --- LÓGICA DE LOS ACORDEONES ---
 const showTemplates = ref(true);
-const showRawString = ref(false); 
+const showRawString = ref(false);
 const showQuickEdits = ref(false);
 const showXmlBuilder = ref(false);
 const showSettings = ref(false);
@@ -1497,7 +1568,7 @@ const removeValueFromList = (id, index) => {
 };
 
 // ==========================================
-// FORMATO DE MONTO 
+// FORMATO DE MONTO
 // ==========================================
 function getFormattedAmount(rawVal) {
   if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
@@ -1509,15 +1580,15 @@ function setFormattedAmount(fieldId, displayVal) {
     xmlForm.value[fieldId].value = "";
     return;
   }
-  const clean = displayVal.replace(/[^\d.]/g, '');
+  const clean = displayVal.replace(/[^\d.]/g, "");
   const floatVal = parseFloat(clean);
   if (!isNaN(floatVal)) {
     const intVal = Math.round(floatVal * 100);
     const fieldDef = xmlFields.value.find((f) => f.id === fieldId);
     const maxLen = fieldDef ? fieldDef.length : 12;
-    xmlForm.value[fieldId].value = String(intVal).padStart(maxLen, '0');
+    xmlForm.value[fieldId].value = String(intVal).padStart(maxLen, "0");
   } else {
-    xmlForm.value[fieldId].value = displayVal; 
+    xmlForm.value[fieldId].value = displayVal;
   }
 }
 
@@ -1543,6 +1614,15 @@ const rawString = ref("");
 const isLoading = ref(false);
 const responseFromServer = ref(null);
 const errorMessage = ref(null);
+
+const toast = ref({ show: false, message: "", type: "error" });
+
+function showToast(message, type = "error") {
+  toast.value = { show: true, message, type };
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 10000);
+}
 
 const TYPE_META = {
   IFA_NUMERIC: {
@@ -2163,6 +2243,39 @@ function isFieldValid(field, value) {
   return true;
 }
 
+function formatErrorMessage(err) {
+  if (err.response && err.response.data && err.response.data.detail) {
+    const detail = err.response.data.detail;
+
+    if (typeof detail === "string") {
+      const lowerDetail = detail.toLowerCase();
+
+      if (lowerDetail.includes("exceeds maximum length")) {
+        const fieldMatch = lowerDetail.match(/field (\d+)/);
+        return fieldMatch
+          ? `El Campo ${fieldMatch[1]} supera la longitud máxima permitida.`
+          : `Un campo es demasiado largo.`;
+      }
+      if (lowerDetail.includes("must be numeric")) {
+        const fieldMatch = lowerDetail.match(/field (\d+)/);
+        return fieldMatch
+          ? `El Campo ${fieldMatch[1]} debe contener solo números.`
+          : `Un campo debe ser numérico.`;
+      }
+      if (lowerDetail.includes("does not exist in xml")) {
+        const fieldMatch = lowerDetail.match(/field (\d+)/);
+        return fieldMatch
+          ? `El Campo ${fieldMatch[1]} no existe en la definición del XML.`
+          : `Campo inválido.`;
+      }
+
+      return detail.replace(/^4\d{2}: \{.*?\[['"](.*?)['"]\].*?\}$/, "$1");
+    }
+  }
+
+  return "Revisa que los campos cumplan con la longitud y formato correctos.";
+}
+
 const isFormValid = computed(() => {
   if (!/^\d{4}$/.test(xmlMti.value)) return false;
   if (activeXmlFields.value.length === 0) return false;
@@ -2202,7 +2315,9 @@ const fillSyntheticRaw = async () => {
           if (xmlForm.value[fid]) {
             xmlForm.value[fid].active = true;
             xmlForm.value[fid].value = val;
-            xmlForm.value[fid].quickEdit = DEFAULT_QUICK_EDITS.includes(Number(fid));
+            xmlForm.value[fid].quickEdit = DEFAULT_QUICK_EDITS.includes(
+              Number(fid),
+            );
           }
         });
       }
@@ -2300,11 +2415,7 @@ const syncToRaw = async () => {
       rawPreview.value = parsed.data;
     }
   } catch (err) {
-    alert(
-      "Error al sincronizar: \n" +
-        (err.response?.data?.detail ||
-          "Revisa que los campos cumplan con la longitud y formato correctos del XML."),
-    );
+    showToast("ERROR DE VALIDACIÓN:\n" + formatErrorMessage(err), "error");
   } finally {
     isSyncing.value = false;
   }
@@ -2444,5 +2555,20 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid white;
   border-radius: 50%;
   cursor: pointer;
+}
+
+.toast-drop-enter-active,
+.toast-drop-leave-active {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto Bounce */
+}
+.toast-drop-enter-from,
+.toast-drop-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50px);
+}
+.toast-drop-enter-to,
+.toast-drop-leave-from {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 </style>
