@@ -66,17 +66,7 @@
             </div>
           </div>
 
-          <button
-            @click="toggleDarkMode"
-            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all shadow-sm"
-          >
-            <span class="material-symbols-outlined text-[18px]">
-              {{ isDark ? "light_mode" : "dark_mode" }}
-            </span>
-            <span class="text-[10px] font-bold uppercase tracking-widest">
-              {{ isDark ? "Modo Claro" : "Modo Oscuro" }}
-            </span>
-          </button>
+          
         </div>
       </div>
     </template>
@@ -1515,16 +1505,7 @@ const isDark = ref(false);
 
 const DEFAULT_QUICK_EDITS = [1, 2, 4, 12, 18, 38, 41, 45, 49];
 
-const toggleDarkMode = () => {
-  isDark.value = !isDark.value;
-  if (isDark.value) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
-};
+
 
 const enforceRangeLimit = (fieldId, type, maxLength) => {
   const currentVal = xmlForm.value[fieldId][type];
