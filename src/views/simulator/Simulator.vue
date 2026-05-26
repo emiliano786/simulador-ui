@@ -1,7 +1,9 @@
 <template>
   <content-tpl>
     <template #header-left>
-      <div class="flex items-center justify-between w-full xl:w-[75vw]">
+      <div
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full max-w-7xl mx-auto gap-4"
+      >
         <div class="flex flex-col">
           <h1
             class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight"
@@ -13,27 +15,19 @@
           </p>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
           <div
-            class="relative flex items-center bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full pl-4 pr-8 py-2 shadow-sm transition-all hover:border-cyan-300 dark:hover:border-cyan-700"
+            class="relative flex items-center bg-white dark:bg-[#111827] border border-gray-200 dark:border-slate-800 rounded-full pl-4 pr-8 py-2 shadow-sm transition-all hover:border-cyan-300 dark:hover:border-cyan-700 w-full sm:w-auto"
           >
-            <svg
-              class="w-4 h-4 text-cyan-500 mr-2 shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <span
+              class="material-symbols-outlined text-cyan-500 text-sm mr-2 shrink-0"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              ></path>
-            </svg>
+              description
+            </span>
             <select
               v-model="selectedXmlFile"
               @change="onXmlChange"
-              class="bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 outline-none cursor-pointer appearance-none w-full"
+              class="bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 outline-none cursor-pointer appearance-none w-full sm:w-48 truncate"
             >
               <option value="" disabled v-if="availableXmlFiles.length === 0">
                 Cargando...
@@ -50,23 +44,9 @@
             <div
               class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
             >
-              <svg
-                class="w-3 h-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
-              </svg>
+              <span class="material-symbols-outlined text-sm">expand_more</span>
             </div>
           </div>
-
-          
         </div>
       </div>
     </template>
@@ -1505,8 +1485,6 @@ const isDark = ref(false);
 
 const DEFAULT_QUICK_EDITS = [1, 2, 4, 12, 18, 38, 41, 45, 49];
 
-
-
 const enforceRangeLimit = (fieldId, type, maxLength) => {
   const currentVal = xmlForm.value[fieldId][type];
   if (currentVal !== null && currentVal !== "") {
@@ -1548,9 +1526,7 @@ const removeValueFromList = (id, index) => {
   }
 };
 
-// ==========================================
 // FORMATO DE MONTO
-// ==========================================
 function getFormattedAmount(rawVal) {
   if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
   return (Number(rawVal) / 100).toFixed(2);
@@ -2003,7 +1979,11 @@ const saveConfiguration = async () => {
 
     if (f.id === 1) return;
 
-    fieldsToSave[String(f.id)] = "";
+    if (saveWithRaw.value) {
+      fieldsToSave[String(f.id)] = xmlForm.value[f.id].value;
+    } else {
+      fieldsToSave[String(f.id)] = "";
+    }
 
     let isSynthetic = xmlForm.value[f.id].synthetic;
 
@@ -2028,7 +2008,6 @@ const saveConfiguration = async () => {
       syntheticConfig[String(f.id)].mode = xmlForm.value[f.id].mode || "random";
       isSynthetic = true;
     }
-
     if (isSynthetic) syntheticFields.push(String(f.id));
   });
 
@@ -2038,7 +2017,7 @@ const saveConfiguration = async () => {
       mti: xmlMti.value,
       batch_size: batchSize.value,
       delay_ms: delayMs.value,
-      raw_string: rawString.value,
+      raw_string: saveWithRaw.value ? rawString.value : "",
       fields: fieldsToSave,
       synthetic_fields: syntheticFields,
       synthetic_config: syntheticConfig,
@@ -2313,8 +2292,8 @@ const fillSyntheticRaw = async () => {
 const isSyncing = ref(false);
 
 // --- LÓGICA DE AUTO-SYNC ---
-const autoSync = ref(true); // Encendido por defecto
-const isParsingFromServer = ref(false); // Seguro contra bucles infinitos
+const autoSync = ref(true);
+const isParsingFromServer = ref(false);
 let autoSyncTimeout = null;
 
 watch(
@@ -2340,45 +2319,10 @@ const syncToRaw = async () => {
   isSyncing.value = true;
   try {
     const fields = {};
-    const syntheticFields = [];
-    const syntheticConfig = {};
 
     activeXmlFields.value.forEach((f) => {
       if (f.id === 1) return;
-
       fields[String(f.id)] = xmlForm.value[f.id].value;
-      let isSynthetic = xmlForm.value[f.id].synthetic;
-
-      if (
-        xmlForm.value[f.id].useValueList &&
-        xmlForm.value[f.id].valueList?.length > 0
-      ) {
-        if (!syntheticConfig[String(f.id)]) syntheticConfig[String(f.id)] = {};
-        syntheticConfig[String(f.id)].valueList = xmlForm.value[f.id].valueList;
-        isSynthetic = true;
-      } else if (
-        (f.isNum || [1, 2, 4, 12, 18, 38, 41, 45, 49].includes(f.id)) &&
-        xmlForm.value[f.id].useRange
-      ) {
-        const minVal = parseInt(xmlForm.value[f.id].minRange);
-        const maxVal = parseInt(xmlForm.value[f.id].maxRange);
-        const modeVal = xmlForm.value[f.id].mode || "random";
-
-        if (!isNaN(minVal) && !isNaN(maxVal)) {
-          if (!syntheticConfig[String(f.id)])
-            syntheticConfig[String(f.id)] = {};
-          syntheticConfig[String(f.id)].min = minVal;
-          syntheticConfig[String(f.id)].max = maxVal;
-          syntheticConfig[String(f.id)].mode = modeVal;
-          isSynthetic = true;
-        }
-      }
-
-      if (isSynthetic) {
-        if (!syntheticFields.includes(String(f.id))) {
-          syntheticFields.push(String(f.id));
-        }
-      }
     });
 
     const { data } = await axios.post("http://localhost:8080/api/build-raw", {

@@ -7,7 +7,7 @@ const router = createRouter({
       path: "/",
       redirect: "/login",
     },
-   {
+    {
       path: "/login",
       name: "login-form",
       component: () => import("../views/Login.vue"),
@@ -26,31 +26,40 @@ const router = createRouter({
           path: "users",
           name: "user-form",
           component: () => import("../views/users/Users.vue"),
-        }
+        },
+        {
+          path: "templates",
+          name: "template-form",
+          component: () => import("../views/template/Template.vue"),
+        },
+        {
+          path: "templates/:name",
+          name: "template-detail",
+          component: () => import("../views/template/TemplateDetail.vue"),
+        },
       ],
     },
   ],
 });
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('iso_token');
-  const userStr = localStorage.getItem('iso_user');
-  
-  let role = 'user';
+  const token = localStorage.getItem("iso_token");
+  const userStr = localStorage.getItem("iso_user");
+
+  let role = "user";
   if (userStr) {
-    try { role = JSON.parse(userStr).role; } catch(e) {}
+    try {
+      role = JSON.parse(userStr).role;
+    } catch (e) {}
   }
 
   if (to.meta.requiresAuth && !token) {
-    next({ name: 'login-form' });
-  } 
-  else if (to.name === 'login-form' && token) {
-    next({ name: 'simulator-form' });
-  } 
-  else if (to.name === 'user-form' && role === 'viewer') {
-    next({ name: 'simulator-form' });
-  }
-  else {
+    next({ name: "login-form" });
+  } else if (to.name === "login-form" && token) {
+    next({ name: "simulator-form" });
+  } else if (to.name === "user-form" && role === "viewer") {
+    next({ name: "simulator-form" });
+  } else {
     next();
   }
 });
