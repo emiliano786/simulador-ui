@@ -425,11 +425,19 @@
                       :class="[
                         field.id == 1
                           ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
-                          : xmlForm[field.id].value &&
-                              !isFieldValid(field, xmlForm[field.id].value) &&
-                              !xmlForm[field.id].synthetic
-                            ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
-                            : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
+                          : xmlForm[field.id].synthetic
+                            ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 border-purple-300 dark:border-purple-700/50 focus:border-purple-500'
+                            : isFieldMasked(xmlForm[field.id].value) &&
+                                field.id !== 1
+                              ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-900 dark:text-amber-100 border-amber-400 focus:border-amber-500'
+                              : xmlForm[field.id].value &&
+                                  !isFieldValid(
+                                    field,
+                                    xmlForm[field.id].value,
+                                  ) &&
+                                  !xmlForm[field.id].synthetic
+                                ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
+                                : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
                       ]"
                     />
                   </div>
@@ -443,11 +451,16 @@
                     :class="[
                       field.id == 1
                         ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
-                        : xmlForm[field.id].value &&
-                            !isFieldValid(field, xmlForm[field.id].value) &&
-                            !xmlForm[field.id].synthetic
-                          ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
-                          : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
+                        : xmlForm[field.id].synthetic
+                          ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 border-purple-300 dark:border-purple-700/50 focus:border-purple-500'
+                          : isFieldMasked(xmlForm[field.id].value) &&
+                              field.id !== 1
+                            ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-900 dark:text-amber-100 border-amber-400 focus:border-amber-500'
+                            : xmlForm[field.id].value &&
+                                !isFieldValid(field, xmlForm[field.id].value) &&
+                                !xmlForm[field.id].synthetic
+                              ? 'border-red-400 focus:border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100'
+                              : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-black text-gray-800 dark:text-gray-100 focus:border-amber-500',
                     ]"
                   />
                 </div>
@@ -540,7 +553,7 @@
                     <span
                       class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest"
                     >
-                      {{ filteredXmlFields.length }} Campos Extraídos
+                      {{ activeXmlFields.length }} Campos Extraídos
                     </span>
                   </div>
 
@@ -569,6 +582,56 @@
                   </div>
                 </div>
 
+                <div
+                  class="mb-6 flex flex-col gap-4 p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/30 dark:bg-black/20 animate-fade-in"
+                >
+                  <div
+                    v-if="detectedBitmaps.expectedFields.length > 0"
+                    class="space-y-2"
+                  >
+                    <div class="flex justify-between items-center">
+                      <label
+                        class="text-[9px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-500 flex items-center gap-1.5"
+                      >
+                        <span class="material-symbols-outlined text-xs"
+                          >analytics</span
+                        >
+                        Data Elements (DE) exigidos por este Bitmap
+                      </label>
+                      <span
+                        class="text-[9px] font-black bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded"
+                      >
+                        {{ detectedBitmaps.expectedFields.length }} Campos
+                        requeridos
+                      </span>
+                    </div>
+
+                    <div
+                      class="flex flex-wrap gap-1.5 p-3 bg-white dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-800/60 shadow-inner"
+                    >
+                      <span
+                        v-for="de in detectedBitmaps.expectedFields"
+                        :key="'de-' + de"
+                        class="text-[10px] font-mono font-bold bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800/50 dark:text-emerald-400 px-2 py-0.5 rounded-md shadow-sm"
+                      >
+                        DE{{ de }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    class="flex flex-col sm:flex-row gap-4 text-[10px] opacity-70 font-mono"
+                  >
+                    <div>
+                      <span class="text-cyan-500 font-bold">BMP1:</span>
+                      {{ detectedBitmaps.primary }}
+                    </div>
+                    <div v-if="detectedBitmaps.isSecondaryActive">
+                      <span class="text-purple-500 font-bold">BMP2:</span>
+                      {{ detectedBitmaps.secondary }}
+                    </div>
+                  </div>
+                </div>
                 <div
                   v-if="xmlLoading"
                   class="flex items-center justify-center py-16"
@@ -631,6 +694,28 @@
                       </span>
                     </div>
 
+                    <transition name="fade">
+                      <div
+                        v-if="parsingErrorField"
+                        class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-xl"
+                      >
+                        <h4
+                          class="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-widest flex items-center gap-2"
+                        >
+                          <span class="material-symbols-outlined text-sm"
+                            >warning</span
+                          >
+                          Error fatal de parseo en el DE{{ parsingErrorField }}
+                        </h4>
+                        <p
+                          class="text-[10px] text-red-600/80 dark:text-red-400/80 mt-1"
+                        >
+                          {{ parsingErrorMessage }}. El resto de la trama fue
+                          ignorada.
+                        </p>
+                      </div>
+                    </transition>
+
                     <div class="flex flex-wrap gap-2">
                       <button
                         v-for="field in filteredXmlFields"
@@ -638,22 +723,29 @@
                         @click="handleGridFieldClick(field.id)"
                         class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-all duration-200 border-2"
                         :class="[
-                          selectedFieldEdit === field.id
-                            ? xmlForm[field.id].synthetic
-                              ? 'bg-purple-500 border-purple-500 text-white shadow-[0_4px_12px_rgba(168,85,247,0.4)] scale-110 z-10 ring-2 ring-purple-200 dark:ring-purple-900'
-                              : 'bg-cyan-500 border-cyan-500 text-white shadow-[0_4px_12px_rgba(6,182,212,0.4)] scale-110 z-10 ring-2 ring-cyan-200 dark:ring-cyan-900'
-                            : xmlForm[field.id]?.active
-                              ? !isFieldValid(field, xmlForm[field.id].value) &&
-                                !xmlForm[field.id].synthetic
-                                ? 'bg-red-50 border-red-400 text-red-600 shadow-[0_0_8px_rgba(248,113,113,0.5)] dark:bg-red-900/30 dark:border-red-600 dark:text-red-400'
-                                : gridTool === 'toggle_quickedit'
-                                  ? xmlForm[field.id]?.quickEdit
-                                    ? 'bg-amber-400 border-amber-500 text-white shadow-md'
-                                    : 'bg-gray-100 border-gray-300 text-gray-400 dark:bg-slate-800 dark:border-slate-700 opacity-60'
-                                  : xmlForm[field.id]?.synthetic
-                                    ? 'bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300 hover:bg-purple-100'
-                                    : 'bg-cyan-50 border-cyan-300 text-cyan-700 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-300 hover:bg-cyan-100'
-                              : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 dark:bg-[#0d1421] dark:border-slate-700',
+                          parsingErrorField === field.id
+                            ? 'bg-red-500 border-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] animate-pulse scale-110 z-20 ring-4 ring-red-500/30'
+                            : selectedFieldEdit === field.id
+                              ? xmlForm[field.id].synthetic
+                                ? 'bg-purple-500 border-purple-500 text-white shadow-[0_4px_12px_rgba(168,85,247,0.4)] scale-110 z-10 ring-2 ring-purple-200 dark:ring-purple-900'
+                                : 'bg-cyan-500 border-cyan-500 text-white shadow-[0_4px_12px_rgba(6,182,212,0.4)] scale-110 z-10 ring-2 ring-cyan-200 dark:ring-cyan-900'
+                              : xmlForm[field.id]?.active
+                                ? isFieldMasked(xmlForm[field.id].value) &&
+                                  !xmlForm[field.id].synthetic
+                                  ? 'bg-amber-50 border-amber-400 text-amber-600 shadow-[0_0_8px_rgba(251,191,36,0.5)] dark:bg-amber-900/30 dark:border-amber-600 dark:text-amber-400'
+                                  : !isFieldValid(
+                                        field,
+                                        xmlForm[field.id].value,
+                                      ) && !xmlForm[field.id].synthetic
+                                    ? 'bg-red-50 border-red-400 text-red-600 shadow-[0_0_8px_rgba(248,113,113,0.5)] dark:bg-red-900/30 dark:border-red-600 dark:text-red-400'
+                                    : gridTool === 'toggle_quickedit'
+                                      ? xmlForm[field.id]?.quickEdit
+                                        ? 'bg-amber-400 border-amber-500 text-white shadow-md'
+                                        : 'bg-gray-100 border-gray-300 text-gray-400 dark:bg-slate-800 dark:border-slate-700 opacity-60'
+                                      : xmlForm[field.id]?.synthetic
+                                        ? 'bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300 hover:bg-purple-100'
+                                        : 'bg-cyan-50 border-cyan-300 text-cyan-700 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-300 hover:bg-cyan-100'
+                                : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 dark:bg-[#0d1421] dark:border-slate-700',
                         ]"
                         :title="field.name"
                       >
@@ -861,16 +953,18 @@
                                 ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
                                 : xmlForm[currentEditField.id].synthetic
                                   ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 placeholder-purple-300 dark:placeholder-purple-800/50 border-purple-300 dark:border-purple-700/50 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.15)]'
-                                  : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700 border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]',
-                              xmlForm[currentEditField.id].value &&
-                              !isFieldValid(
-                                currentEditField,
-                                xmlForm[currentEditField.id].value,
-                              ) &&
-                              !xmlForm[currentEditField.id].synthetic &&
-                              currentEditField.id !== 1
-                                ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
-                                : '',
+                                  : isFieldMasked(
+                                        xmlForm[currentEditField.id].value,
+                                      ) && currentEditField.id !== 1
+                                    ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-900 dark:text-amber-100 border-amber-400 focus:border-amber-500 focus:shadow-[0_0_0_4px_rgba(251,191,36,0.15)]'
+                                    : xmlForm[currentEditField.id].value &&
+                                        !isFieldValid(
+                                          currentEditField,
+                                          xmlForm[currentEditField.id].value,
+                                        ) &&
+                                        currentEditField.id !== 1
+                                      ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
+                                      : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700 border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]',
                             ]"
                           />
                         </div>
@@ -887,16 +981,18 @@
                               ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 cursor-not-allowed'
                               : xmlForm[currentEditField.id].synthetic
                                 ? 'bg-purple-50/50 dark:bg-purple-900/10 text-purple-900 dark:text-purple-100 placeholder-purple-300 dark:placeholder-purple-800/50 border-purple-300 dark:border-purple-700/50 focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.15)]'
-                                : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700 border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]',
-                            xmlForm[currentEditField.id].value &&
-                            !isFieldValid(
-                              currentEditField,
-                              xmlForm[currentEditField.id].value,
-                            ) &&
-                            !xmlForm[currentEditField.id].synthetic &&
-                            currentEditField.id !== 1
-                              ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
-                              : '',
+                                : isFieldMasked(
+                                      xmlForm[currentEditField.id].value,
+                                    ) && currentEditField.id !== 1
+                                  ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-900 dark:text-amber-100 border-amber-400 focus:border-amber-500 focus:shadow-[0_0_0_4px_rgba(251,191,36,0.15)]'
+                                  : xmlForm[currentEditField.id].value &&
+                                      !isFieldValid(
+                                        currentEditField,
+                                        xmlForm[currentEditField.id].value,
+                                      ) &&
+                                      currentEditField.id !== 1
+                                    ? 'border-red-400 focus:border-red-500 dark:border-red-800 focus:shadow-[0_0_0_4px_rgba(248,113,113,0.1)]'
+                                    : 'bg-white dark:bg-black text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-700 border-gray-200 dark:border-slate-700 focus:border-cyan-500 focus:shadow-[0_0_0_4px_rgba(6,182,212,0.1)]',
                           ]"
                         />
 
@@ -908,113 +1004,6 @@
                                 [2, 4, 12, 18, 38, 41, 45, 49].includes(
                                   currentEditField.id,
                                 ))
-                            "
-                            class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700"
-                          >
-                            <label
-                              class="flex items-center gap-3 cursor-pointer w-fit select-none"
-                            >
-                              <input
-                                type="checkbox"
-                                v-model="xmlForm[currentEditField.id].useRange"
-                                @change="
-                                  if (!xmlForm[currentEditField.id].useRange) {
-                                    xmlForm[currentEditField.id].minRange = '';
-                                    xmlForm[currentEditField.id].maxRange = '';
-                                  } else {
-                                    xmlForm[currentEditField.id].useValueList =
-                                      false;
-                                  }
-                                "
-                                class="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer accent-cyan-500"
-                              />
-                              <span
-                                class="text-[10px] font-bold uppercase tracking-widest transition-colors text-gray-500 dark:text-gray-400"
-                                :class="{
-                                  'text-cyan-600 dark:text-cyan-400':
-                                    xmlForm[currentEditField.id].useRange,
-                                }"
-                                >Generar valores por rango</span
-                              >
-                            </label>
-                            <div
-                              v-if="xmlForm[currentEditField.id].useRange"
-                              class="flex flex-wrap gap-4 mt-2 animate-fade-in"
-                            >
-                              <div class="flex-1 min-w-[80px]">
-                                <label
-                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
-                                  >Mínimo</label
-                                >
-                                <input
-                                  type="number"
-                                  v-model="
-                                    xmlForm[currentEditField.id].minRange
-                                  "
-                                  @input="
-                                    enforceRangeLimit(
-                                      currentEditField.id,
-                                      'minRange',
-                                      currentEditField.maxInput,
-                                    )
-                                  "
-                                  min="0"
-                                  :max="'9'.repeat(currentEditField.maxInput)"
-                                  placeholder="Ej. 1"
-                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
-                                />
-                              </div>
-                              <div class="flex-1 min-w-[80px]">
-                                <label
-                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
-                                  >Máximo</label
-                                >
-                                <input
-                                  type="number"
-                                  v-model="
-                                    xmlForm[currentEditField.id].maxRange
-                                  "
-                                  @input="
-                                    enforceRangeLimit(
-                                      currentEditField.id,
-                                      'maxRange',
-                                      currentEditField.maxInput,
-                                    )
-                                  "
-                                  min="1"
-                                  :max="'9'.repeat(currentEditField.maxInput)"
-                                  :placeholder="
-                                    'Ej. ' +
-                                    '9'.repeat(
-                                      Math.min(currentEditField.maxInput, 4),
-                                    )
-                                  "
-                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
-                                />
-                              </div>
-                              <div class="flex-1 min-w-[100px]">
-                                <label
-                                  class="text-[10px] font-bold uppercase tracking-widest block mb-1 text-cyan-700 dark:text-cyan-500"
-                                  >Modo</label
-                                >
-                                <select
-                                  v-model="xmlForm[currentEditField.id].mode"
-                                  class="w-full text-xs font-mono px-3 py-2 rounded-lg border bg-white dark:bg-black text-gray-800 dark:text-white outline-none cursor-pointer appearance-none transition-colors border-cyan-200 dark:border-cyan-900/50 focus:border-cyan-500"
-                                >
-                                  <option value="random">Aleatorio</option>
-                                  <option value="sequential">Secuencial</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </transition>
-
-                        <transition name="fade">
-                          <div
-                            v-if="
-                              [1, 2, 4, 12, 18, 38, 41, 45, 49].includes(
-                                currentEditField.id,
-                              )
                             "
                             class="flex flex-col gap-3 p-4 mt-2 rounded-xl border transition-all bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50"
                           >
@@ -1173,16 +1162,19 @@
                             <span
                               :class="[
                                 'text-[11px] font-mono font-bold px-2 py-1 rounded border',
-                                xmlForm[currentEditField.id].value &&
-                                !isFieldValid(
-                                  currentEditField,
-                                  xmlForm[currentEditField.id].value,
-                                ) &&
-                                !xmlForm[currentEditField.id].synthetic
-                                  ? 'text-red-500 border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
-                                  : xmlForm[currentEditField.id].synthetic
-                                    ? 'text-purple-600 border-purple-200 bg-purple-50 dark:text-purple-300 dark:border-purple-800 dark:bg-purple-900/20'
-                                    : 'text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-400 dark:border-slate-800 dark:bg-black',
+                                xmlForm[currentEditField.id].synthetic
+                                  ? 'text-purple-600 border-purple-200 bg-purple-50 dark:text-purple-300 dark:border-purple-800 dark:bg-purple-900/20'
+                                  : isFieldMasked(
+                                        xmlForm[currentEditField.id].value,
+                                      )
+                                    ? 'text-amber-700 border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400'
+                                    : xmlForm[currentEditField.id].value &&
+                                        !isFieldValid(
+                                          currentEditField,
+                                          xmlForm[currentEditField.id].value,
+                                        )
+                                      ? 'text-red-500 border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                                      : 'text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-400 dark:border-slate-800 dark:bg-black',
                               ]"
                             >
                               {{
@@ -1483,8 +1475,6 @@ import ContentTpl from "@/layouts/ContentTpl.vue";
 
 const isDark = ref(false);
 
-const DEFAULT_QUICK_EDITS = [1, 2, 4, 12, 18, 38, 41, 45, 49];
-
 const enforceRangeLimit = (fieldId, type, maxLength) => {
   const currentVal = xmlForm.value[fieldId][type];
   if (currentVal !== null && currentVal !== "") {
@@ -1494,60 +1484,6 @@ const enforceRangeLimit = (fieldId, type, maxLength) => {
     }
   }
 };
-
-// --- LÓGICA DE LOS ACORDEONES ---
-const showTemplates = ref(true);
-const showRawString = ref(false);
-const showQuickEdits = ref(false);
-const showXmlBuilder = ref(false);
-const showSettings = ref(false);
-
-// --- LÓGICA PARA LA LISTA DE VALORES ---
-const newValueInput = ref("");
-
-const initValueList = (id) => {
-  if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
-};
-
-const addValueToList = (id) => {
-  const val = newValueInput.value.trim();
-  if (val) {
-    if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
-    if (!xmlForm.value[id].valueList.includes(val)) {
-      xmlForm.value[id].valueList.push(val);
-    }
-    newValueInput.value = "";
-  }
-};
-
-const removeValueFromList = (id, index) => {
-  if (xmlForm.value[id].valueList) {
-    xmlForm.value[id].valueList.splice(index, 1);
-  }
-};
-
-// FORMATO DE MONTO
-function getFormattedAmount(rawVal) {
-  if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
-  return (Number(rawVal) / 100).toFixed(2);
-}
-
-function setFormattedAmount(fieldId, displayVal) {
-  if (!displayVal) {
-    xmlForm.value[fieldId].value = "";
-    return;
-  }
-  const clean = displayVal.replace(/[^\d.]/g, "");
-  const floatVal = parseFloat(clean);
-  if (!isNaN(floatVal)) {
-    const intVal = Math.round(floatVal * 100);
-    const fieldDef = xmlFields.value.find((f) => f.id === fieldId);
-    const maxLen = fieldDef ? fieldDef.length : 12;
-    xmlForm.value[fieldId].value = String(intVal).padStart(maxLen, "0");
-  } else {
-    xmlForm.value[fieldId].value = displayVal;
-  }
-}
 
 onMounted(async () => {
   const savedTheme = localStorage.getItem("theme");
@@ -1580,6 +1516,50 @@ function showToast(message, type = "error") {
     toast.value.show = false;
   }, 10000);
 }
+
+const detectedBitmaps = computed(() => {
+  let s = rawString.value.trim();
+  if (s.startsWith("ISO")) s = s.substring(12);
+
+  if (s.length < 20)
+    return {
+      primary: "---",
+      secondary: "---",
+      isSecondaryActive: false,
+      expectedFields: [],
+    };
+
+  const primary = s.slice(4, 20);
+
+  const firstChar = primary.charAt(0).toUpperCase();
+  const isSecondaryActive = ["8", "9", "A", "B", "C", "D", "E", "F"].includes(
+    firstChar,
+  );
+
+  let secondary = "Esperando más caracteres...";
+  if (isSecondaryActive && s.length >= 36) {
+    secondary = s.slice(20, 36);
+  }
+
+  let expectedFields = [];
+  try {
+    let bin1 = hexToBin(primary);
+    for (let i = 1; i < 64; i++) {
+      if (bin1[i] === "1") expectedFields.push(i + 1);
+    }
+
+    if (isSecondaryActive && s.length >= 36) {
+      let bin2 = hexToBin(secondary);
+      for (let i = 0; i < 64; i++) {
+        if (bin2[i] === "1") expectedFields.push(i + 65);
+      }
+    }
+  } catch (e) {
+    console.warn("Error calculando los DEs del Bitmap", e);
+  }
+
+  return { primary, secondary, isSecondaryActive, expectedFields };
+});
 
 const TYPE_META = {
   IFA_NUMERIC: {
@@ -1735,6 +1715,8 @@ const onXmlChange = async () => {
   }
 };
 
+const DEFAULT_QUICK_EDITS = [1, 2, 4, 12, 18, 38, 41, 45, 49];
+
 async function loadXmlFields() {
   xmlLoading.value = true;
   xmlError.value = null;
@@ -1810,6 +1792,8 @@ function hexToBin(hex) {
 const rawPreview = ref(null);
 let parseTimeout = null;
 let skipNextParse = false;
+const parsingErrorField = ref(null);
+const parsingErrorMessage = ref("");
 
 const activeXmlFields = computed(() =>
   xmlFields.value.filter((f) => xmlForm.value[f.id]?.active),
@@ -1866,67 +1850,89 @@ watch(rawString, (newVal) => {
   }
 
   const s = newVal.trim();
+
   if (!s || s.length < 16) {
     rawPreview.value = null;
+    parsingErrorField.value = null;
+    parsingErrorMessage.value = "";
+    errorMessage.value = null;
+    responseFromServer.value = null;
+    showXmlBuilder.value = false;
+
     Object.keys(xmlForm.value).forEach((k) => {
       xmlForm.value[k].active = false;
       xmlForm.value[k].value = "";
+      xmlForm.value[k].synthetic = false;
     });
     return;
   }
+
   parseTimeout = setTimeout(async () => {
     isParsingFromServer.value = true;
     try {
       const { data } = await axios.post("http://localhost:8080/api/parse", {
         raw_string: s,
       });
-      try {
-        const { data } = await axios.post("http://localhost:8080/api/parse", {
-          raw_string: s,
-        });
-        rawPreview.value = data;
-        xmlMti.value = data.mti || "0000";
 
-        Object.keys(xmlForm.value).forEach((k) => {
-          if (k != 1) {
-            xmlForm.value[k].active = false;
+      rawPreview.value = data;
+      xmlMti.value = data.mti || "0000";
+      parsingErrorField.value = data.error_field || null;
+      parsingErrorMessage.value = data.error_msg || "";
+
+      // Apagar campos anteriores
+      Object.keys(xmlForm.value).forEach((k) => {
+        if (k != 1) xmlForm.value[k].active = false;
+      });
+
+      let hasValidationError = false;
+
+      Object.entries(data.fields).forEach(([fid, val]) => {
+        if (xmlForm.value[fid]) {
+          xmlForm.value[fid].active = true;
+          xmlForm.value[fid].value = val;
+
+          const fieldDef = xmlFields.value.find((f) => f.id == parseInt(fid));
+          // Validar omitiendo la máscara (asteriscos) para no forzar el acordeón abierto
+          if (fieldDef && !isFieldValid(fieldDef, val) && !isFieldMasked(val)) {
+            hasValidationError = true;
           }
-        });
+        }
+      });
 
-        Object.entries(data.fields).forEach(([fid, val]) => {
-          if (xmlForm.value[fid]) {
-            xmlForm.value[fid].active = true;
-            xmlForm.value[fid].value = val;
-          }
-        });
-      } catch (err) {
-        console.warn(
-          "Fallo el parser del servidor, extrayendo solo Bitmap localmente.",
-        );
-
-        const mti = s.slice(0, 4);
-        const bitmapHex1 = s.slice(4, 20);
-        let active_fields = [];
-        try {
-          let bin1 = hexToBin(bitmapHex1);
-          for (let i = 1; i < 64; i++)
-            if (bin1[i] === "1") active_fields.push(i + 1);
-          if (bin1[0] === "1" && s.length >= 36) {
-            let bin2 = hexToBin(s.slice(20, 36));
-            for (let i = 0; i < 64; i++)
-              if (bin2[i] === "1") active_fields.push(i + 65);
-          }
-        } catch (e) {}
-
-        rawPreview.value = { mti, active_fields };
-        xmlMti.value = mti;
-
-        Object.keys(xmlForm.value).forEach((k) => {
-          if (k != 1) {
-            xmlForm.value[k].active = active_fields.includes(parseInt(k));
-          }
-        });
+      if (parsingErrorField.value || hasValidationError) {
+        showXmlBuilder.value = true;
       }
+    } catch (err) {
+      console.warn(
+        "Fallo el parser del servidor, extrayendo solo Bitmap localmente.",
+      );
+
+      let cleanS = s;
+      if (cleanS.startsWith("ISO")) cleanS = cleanS.substring(12);
+
+      const mti = cleanS.slice(0, 4);
+      const bitmapHex1 = cleanS.slice(4, 20);
+      let active_fields = [];
+      try {
+        let bin1 = hexToBin(bitmapHex1);
+        for (let i = 1; i < 64; i++)
+          if (bin1[i] === "1") active_fields.push(i + 1);
+        if (bin1[0] === "1" && cleanS.length >= 36) {
+          let bin2 = hexToBin(cleanS.slice(20, 36));
+          for (let i = 0; i < 64; i++)
+            if (bin2[i] === "1") active_fields.push(i + 65);
+        }
+      } catch (e) {}
+
+      rawPreview.value = { mti, active_fields };
+      xmlMti.value = mti;
+      parsingErrorField.value = null;
+
+      Object.keys(xmlForm.value).forEach((k) => {
+        if (k != 1) {
+          xmlForm.value[k].active = active_fields.includes(parseInt(k));
+        }
+      });
     } finally {
       nextTick(() => {
         isParsingFromServer.value = false;
@@ -1939,6 +1945,35 @@ const filteredXmlFields = computed(() => {
   return xmlFields.value;
 });
 
+const showTemplates = ref(true);
+const showRawString = ref(false);
+const showQuickEdits = ref(false);
+const showXmlBuilder = ref(false);
+const showSettings = ref(false);
+
+const newValueInput = ref("");
+
+const initValueList = (id) => {
+  if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
+};
+
+const addValueToList = (id) => {
+  const val = newValueInput.value.trim();
+  if (val) {
+    if (!xmlForm.value[id].valueList) xmlForm.value[id].valueList = [];
+    if (!xmlForm.value[id].valueList.includes(val)) {
+      xmlForm.value[id].valueList.push(val);
+    }
+    newValueInput.value = "";
+  }
+};
+
+const removeValueFromList = (id, index) => {
+  if (xmlForm.value[id].valueList) {
+    xmlForm.value[id].valueList.splice(index, 1);
+  }
+};
+
 const quickEditFields = computed(() => {
   if (!rawPreview.value || !rawPreview.value.active_fields) return [];
   return xmlFields.value.filter(
@@ -1948,7 +1983,6 @@ const quickEditFields = computed(() => {
   );
 });
 
-// --- LÓGICA MONGODB ---
 const newConfigName = ref("");
 const savedConfigsList = ref([]);
 const saveStatusMessage = ref("");
@@ -2008,6 +2042,7 @@ const saveConfiguration = async () => {
       syntheticConfig[String(f.id)].mode = xmlForm.value[f.id].mode || "random";
       isSynthetic = true;
     }
+
     if (isSynthetic) syntheticFields.push(String(f.id));
   });
 
@@ -2194,6 +2229,11 @@ const deactivateField = (id) => {
   selectedFieldEdit.value = null;
 };
 
+function isFieldMasked(value) {
+  if (!value) return false;
+  return String(value).includes("*");
+}
+
 function isFieldValid(field, value) {
   if (!value) return true;
   const strVal = String(value);
@@ -2248,6 +2288,28 @@ const isFormValid = computed(() => {
   });
 });
 
+function getFormattedAmount(rawVal) {
+  if (!rawVal || !/^\d+$/.test(rawVal)) return rawVal;
+  return (Number(rawVal) / 100).toFixed(2);
+}
+
+function setFormattedAmount(fieldId, displayVal) {
+  if (!displayVal) {
+    xmlForm.value[fieldId].value = "";
+    return;
+  }
+  const clean = displayVal.replace(/[^\d.]/g, "");
+  const floatVal = parseFloat(clean);
+  if (!isNaN(floatVal)) {
+    const intVal = Math.round(floatVal * 100);
+    const fieldDef = xmlFields.value.find((f) => f.id === fieldId);
+    const maxLen = fieldDef ? fieldDef.length : 12;
+    xmlForm.value[fieldId].value = String(intVal).padStart(maxLen, "0");
+  } else {
+    xmlForm.value[fieldId].value = displayVal;
+  }
+}
+
 const fillSyntheticRaw = async () => {
   try {
     isLoading.value = true;
@@ -2256,8 +2318,15 @@ const fillSyntheticRaw = async () => {
     );
 
     if (data && data.raw_iso) {
-      skipNextParse = true;
-      rawString.value = data.raw_iso;
+      if (rawString.value !== data.raw_iso) {
+        skipNextParse = true;
+        rawString.value = data.raw_iso;
+      }
+
+      parsingErrorField.value = null;
+      parsingErrorMessage.value = "";
+      errorMessage.value = null;
+      responseFromServer.value = null;
 
       if (data.parsed_fields) {
         const active_fields = Object.keys(data.parsed_fields).map(Number);
@@ -2290,8 +2359,6 @@ const fillSyntheticRaw = async () => {
 };
 
 const isSyncing = ref(false);
-
-// --- LÓGICA DE AUTO-SYNC ---
 const autoSync = ref(true);
 const isParsingFromServer = ref(false);
 let autoSyncTimeout = null;
@@ -2331,8 +2398,10 @@ const syncToRaw = async () => {
     });
 
     if (data && data.raw_iso) {
-      skipNextParse = true;
-      rawString.value = data.raw_iso;
+      if (rawString.value !== data.raw_iso) {
+        skipNextParse = true;
+        rawString.value = data.raw_iso;
+      }
 
       const parsed = await axios.post("http://localhost:8080/api/parse", {
         raw_string: data.raw_iso,
@@ -2453,7 +2522,7 @@ const handleDispatch = async () => {
   opacity: 1;
   transform: translateY(0);
   max-height: 2500px;
-} /* Ajustado el max-height para el builder grande */
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -2484,7 +2553,7 @@ input[type="range"]::-moz-range-thumb {
 
 .toast-drop-enter-active,
 .toast-drop-leave-active {
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto Bounce */
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .toast-drop-enter-from,
 .toast-drop-leave-to {
