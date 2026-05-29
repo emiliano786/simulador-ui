@@ -37,6 +37,11 @@ const router = createRouter({
           name: "template-detail",
           component: () => import("../views/template/TemplateDetail.vue"),
         },
+        {
+          path: "parser",
+          name: "parser-form",
+          component: () => import("../views/parser/Parser.vue"),
+        }
       ],
     },
   ],

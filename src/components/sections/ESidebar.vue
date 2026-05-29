@@ -276,6 +276,10 @@ const modules = computed(() => {
 
   const list = [{ route: "simulator-form", icon: "bolt", label: "Simulador" }];
 
+if (role === "admin" || role === "user") {
+    list.push({ route: "parser-form", icon: "bolt", label: "Parser" });
+  }
+
   if (role === "admin" || role === "user") {
     list.push({ route: "user-form", icon: "group", label: "Usuarios" });
   }
@@ -287,6 +291,8 @@ const modules = computed(() => {
       label: "Configuraciones",
     });
   }
+
+  
 
   return list;
 });
