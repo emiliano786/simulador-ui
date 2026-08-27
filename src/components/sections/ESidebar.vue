@@ -276,7 +276,7 @@ const modules = computed(() => {
 
   const list = [{ route: "simulator-form", icon: "bolt", label: "Simulador" }];
 
-if (role === "admin" || role === "user") {
+  if (role === "admin" || role === "user") {
     list.push({ route: "parser-form", icon: "bolt", label: "Parser" });
   }
 
@@ -288,11 +288,9 @@ if (role === "admin" || role === "user") {
     list.push({
       route: "template-form",
       icon: "settings",
-      label: "Configuraciones",
+      label: "Plantillas",
     });
   }
-
-  
 
   return list;
 });

@@ -41,7 +41,7 @@ const router = createRouter({
           path: "parser",
           name: "parser-form",
           component: () => import("../views/parser/Parser.vue"),
-        }
+        },
       ],
     },
   ],
